@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Cyber Escola Painel
  * Description: Visual neon da Cyber Escola na tela de login, no painel e no editor do WordPress.
- * Version: 1.5.0
+ * Version: 1.5.1
  * Author: Cyber Escola
  * Requires at least: 6.4
  * Requires PHP: 7.4
@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'CE_PAINEL_VERSION', '1.5.0' );
+define( 'CE_PAINEL_VERSION', '1.5.1' );
 require_once __DIR__ . '/autora.php';
 require_once __DIR__ . '/fontes.php';
 define( 'CE_PAINEL_URL', plugin_dir_url( __FILE__ ) );
@@ -185,6 +185,20 @@ function ce_painel_extra( $which ) {
 			}, 800 );
 		} );
 	}
+	/* Mostra cada fonte com o próprio desenho na lista */
+	if ( window.MutationObserver ) {
+		var ceFontes = [ 'Inter', 'Poppins', 'Fredoka', 'Montserrat', 'Roboto', 'Open Sans', 'Lato', 'Nunito', 'Quicksand', 'Raleway', 'Baloo 2', 'Comfortaa', 'Oswald', 'Bebas Neue', 'Righteous', 'Merriweather', 'Lora', 'Playfair Display', 'Roboto Slab', 'Source Serif 4', 'Caveat', 'Dancing Script', 'Pacifico', 'Lobster', 'Indie Flower', 'Patrick Hand', 'Shadows Into Light', 'Amatic SC', 'Permanent Marker', 'Chewy', 'Bangers', 'Luckiest Guy', 'Space Mono' ];
+		new MutationObserver( function () {
+			var itens = document.querySelectorAll( '.components-custom-select-control__item:not([data-ce-fonte])' );
+			for ( var i = 0; i < itens.length; i++ ) {
+				var nome = ( itens[ i ].textContent || '' ).trim();
+				itens[ i ].setAttribute( 'data-ce-fonte', '1' );
+				if ( ceFontes.indexOf( nome ) > -1 ) {
+					itens[ i ].style.fontFamily = "'" + nome + "'";
+				}
+			}
+		} ).observe( document.body, { childList: true, subtree: true } );
+	}
 	if ( ! Panel ) { return; }
 	function Pronto() {
 		var d = wp.data.useSelect( function ( select ) {
@@ -330,6 +344,12 @@ body.ce-editor #adminmenu li.menu-top > a { border-radius: 14px; margin: 6px 8px
 .interface-complementary-area .components-panel__body-title:hover, .interface-complementary-area .components-panel__body-toggle.components-button:hover, .interface-complementary-area .components-panel__body-toggle.components-button:focus { background: rgba(180,92,240,.18) !important; color: #fff !important; box-shadow: none !important; }
 .interface-complementary-area .components-panel__body-toggle.components-button:hover .components-panel__arrow { color: #fff !important; }
 .interface-complementary-area .editor-post-card-panel .components-button:hover, .interface-complementary-area .editor-post-panel__row .components-button:hover, .interface-complementary-area .editor-sidebar__panel-tabs [role=tab]:hover { background: rgba(255,255,255,.08) !important; color: #fff !important; }
+/* Listas de escolha (Fonte, Tamanho da fonte) */
+.components-custom-select-control button[role=combobox], .components-custom-select-control__button { background: rgba(10,9,24,.6) !important; color: #fff !important; border-color: rgba(255,255,255,.2) !important; }
+[role=listbox]:has(.components-custom-select-control__item), .components-custom-select-control__menu { background: #14112A !important; border: 1px solid rgba(255,255,255,.14) !important; border-radius: 12px !important; color: #EDEBFF !important; box-shadow: 0 24px 60px rgba(0,0,0,.6) !important; }
+.components-custom-select-control__item { color: #EDEBFF !important; font-size: 15px !important; }
+.components-custom-select-control__item[aria-selected=true], .components-custom-select-control__item[data-active-item], .components-custom-select-control__item:hover { background: rgba(180,92,240,.35) !important; color: #fff !important; }
+.components-custom-select-control__item-hint { color: #A9A6C9 !important; }
 /* Painel "Pronto para publicar?" */
 .ce-stats { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12.5px; color: #A9A6C9; margin: 2px 0 12px; }
 .ce-stats b { color: #fff; }
