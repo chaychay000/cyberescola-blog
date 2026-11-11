@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Cyber Escola Painel
  * Description: Visual neon da Cyber Escola na tela de login, no painel e no editor do WordPress.
- * Version: 1.7.0
+ * Version: 1.7.1
  * Author: Cyber Escola
  * Requires at least: 6.4
  * Requires PHP: 7.4
@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'CE_PAINEL_VERSION', '1.7.0' );
+define( 'CE_PAINEL_VERSION', '1.7.1' );
 require_once __DIR__ . '/autora.php';
 require_once __DIR__ . '/fontes.php';
 define( 'CE_PAINEL_URL', plugin_dir_url( __FILE__ ) );
@@ -328,6 +328,11 @@ function ce_painel_extra( $which ) {
 		} );
 		function BlocoAqui() {
 			var qtd = wp.data.useSelect( function ( select ) { return select( 'core/block-editor' ).getSelectedBlockCount(); }, [] );
+			wp.element.useEffect( function () {
+				if ( qtd && ! wp.data.select( 'core/editor' ).isEditorPanelOpened( 'ce-bloco/ce-bloco' ) ) {
+					wp.data.dispatch( 'core/editor' ).toggleEditorPanelOpened( 'ce-bloco/ce-bloco' );
+				}
+			}, [ qtd > 0 ] );
 			if ( ! qtd ) { return null; }
 			return el( Panel, { name: 'ce-bloco', title: 'Bloco selecionado', className: 'ce-bloco-panel', initialOpen: true }, el( BlockInspector ) );
 		}
