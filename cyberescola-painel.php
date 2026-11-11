@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Cyber Escola Painel
  * Description: Visual neon da Cyber Escola na tela de login, no painel e no editor do WordPress.
- * Version: 1.3.3
+ * Version: 1.3.4
  * Author: Cyber Escola
  * Requires at least: 6.4
  * Requires PHP: 7.4
@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'CE_PAINEL_VERSION', '1.3.3' );
+define( 'CE_PAINEL_VERSION', '1.3.4' );
 require_once __DIR__ . '/autora.php';
 define( 'CE_PAINEL_URL', plugin_dir_url( __FILE__ ) );
 
@@ -290,6 +290,16 @@ body.ce-editor #adminmenu li.menu-top > a { border-radius: 14px; margin: 6px 8px
 .components-form-toggle__thumb { background: #CFCDEA !important; border-color: #CFCDEA !important; }
 .rank-math-toolbar-score { background: rgba(255,255,255,.06) !important; color: #EDEBFF !important; border-color: rgba(255,255,255,.14) !important; }
 .interface-interface-skeleton *, .editor-header * { scrollbar-color: rgba(180,92,240,.45) transparent; scrollbar-width: thin; }
+/* Busca de comandos (Ctrl+K) */
+.commands-command-menu { background: #14112A !important; border: 1px solid rgba(255,255,255,.14) !important; border-radius: 18px !important; }
+.commands-command-menu__header { border-bottom: 1px solid rgba(255,255,255,.1) !important; }
+.commands-command-menu__header input, .commands-command-menu__header input[type=text], .commands-command-menu input[cmdk-input] { background: transparent !important; color: #fff !important; box-shadow: none !important; border: 0 !important; }
+.commands-command-menu__header input::placeholder, .commands-command-menu input[cmdk-input]::placeholder { color: #8F8BAE !important; }
+.commands-command-menu__header svg { fill: #C084FC !important; }
+.commands-command-menu [cmdk-item] { color: #CFCDEA !important; border-radius: 10px; }
+.commands-command-menu [cmdk-item] svg { fill: currentColor !important; }
+.commands-command-menu [cmdk-item][aria-selected=true], .commands-command-menu [cmdk-item][data-selected=true], .commands-command-menu [cmdk-item]:hover { background: linear-gradient(90deg, rgba(240,33,138,.4), rgba(180,92,240,.4)) !important; color: #fff !important; }
+.commands-command-menu [cmdk-group-heading], .commands-command-menu [cmdk-empty] { color: #8F8BAE !important; }
 /* Painel "Pronto para publicar?" */
 .ce-stats { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12.5px; color: #A9A6C9; margin: 2px 0 12px; }
 .ce-stats b { color: #fff; }
