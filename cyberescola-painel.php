@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Cyber Escola Painel
  * Description: Visual neon da Cyber Escola na tela de login, no painel e no editor do WordPress.
- * Version: 1.6.0
+ * Version: 1.7.0
  * Author: Cyber Escola
  * Requires at least: 6.4
  * Requires PHP: 7.4
@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'CE_PAINEL_VERSION', '1.6.0' );
+define( 'CE_PAINEL_VERSION', '1.7.0' );
 require_once __DIR__ . '/autora.php';
 require_once __DIR__ . '/fontes.php';
 define( 'CE_PAINEL_URL', plugin_dir_url( __FILE__ ) );
@@ -312,6 +312,27 @@ function ce_painel_extra( $which ) {
 		wp.hooks.addFilter( 'editor.BlockEdit', 'cyberescola/formatacao', comPainel );
 	} )();
 	if ( ! Panel ) { return; }
+	/* Uma aba só: as opções do bloco aparecem dentro da aba do artigo */
+	( function () {
+		var BlockInspector = wp.blockEditor && wp.blockEditor.BlockInspector;
+		if ( ! BlockInspector ) { return; }
+		function abaAtiva() {
+			var i = wp.data.select( 'core/interface' );
+			if ( ! i ) { return null; }
+			return i.getActiveComplementaryArea( 'core' ) || i.getActiveComplementaryArea( 'core/edit-post' );
+		}
+		wp.data.subscribe( function () {
+			if ( abaAtiva() === 'edit-post/block' ) {
+				wp.data.dispatch( 'core/edit-post' ).openGeneralSidebar( 'edit-post/document' );
+			}
+		} );
+		function BlocoAqui() {
+			var qtd = wp.data.useSelect( function ( select ) { return select( 'core/block-editor' ).getSelectedBlockCount(); }, [] );
+			if ( ! qtd ) { return null; }
+			return el( Panel, { name: 'ce-bloco', title: 'Bloco selecionado', className: 'ce-bloco-panel', initialOpen: true }, el( BlockInspector ) );
+		}
+		wp.plugins.registerPlugin( 'ce-bloco', { render: BlocoAqui } );
+	} )();
 	function Pronto() {
 		var d = wp.data.useSelect( function ( select ) {
 			var ed = select( 'core/editor' );
@@ -470,6 +491,18 @@ body.ce-sem-selecao .block-editor-block-list__block-popover:has(.block-editor-bl
 .ce-fmt-linha { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
 .ce-fmt .components-button.ce-fmt-btn { min-width: 36px; height: 36px; padding: 0 8px; justify-content: center; border-radius: 10px; border: 1px solid rgba(255,255,255,.18) !important; background: rgba(10,9,24,.6) !important; color: #fff !important; font-size: 15px; }
 .ce-fmt .components-button.ce-fmt-btn:hover { background: linear-gradient(135deg, rgba(240,33,138,.5), rgba(180,92,240,.5)) !important; border-color: transparent !important; }
+/* Uma aba só (Artigo) com o bloco selecionado no topo */
+.editor-sidebar__panel-tabs [role=tab]:not([aria-selected=true]) { display: none !important; }
+.editor-sidebar__panel-tabs [role=tab][aria-selected=true] { font-size: 0 !important; flex: 1; }
+.editor-sidebar__panel-tabs [role=tab][aria-selected=true]::before { content: "Configurações"; font-size: 13.5px; font-weight: 700; font-family: 'Poppins', sans-serif; }
+.interface-complementary-area div:has(> .ce-bloco-panel) { display: flex; flex-direction: column; }
+.interface-complementary-area div:has(> .ce-bloco-panel) > * { order: 3; }
+.interface-complementary-area div:has(> .ce-bloco-panel) > .ce-bloco-panel { order: 0; }
+.interface-complementary-area div:has(> .ce-bloco-panel) > :first-child:not(.ce-bloco-panel) { order: 1; }
+.interface-complementary-area div:has(> .ce-bloco-panel) > .ce-pronto { order: 2; }
+.ce-bloco-panel .block-editor-block-inspector { background: transparent !important; }
+.ce-bloco-panel .block-editor-block-inspector .components-panel__body { margin: 10px 0 !important; box-shadow: none; }
+.ce-bloco-panel.is-opened > .components-panel__body-title + * { padding: 0; }
 /* Painel "Pronto para publicar?" */
 .ce-stats { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12.5px; color: #A9A6C9; margin: 2px 0 12px; }
 .ce-stats b { color: #fff; }
