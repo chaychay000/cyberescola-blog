@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Cyber Escola Painel
  * Description: Visual neon da Cyber Escola na tela de login, no painel e no editor do WordPress.
- * Version: 1.4.0
+ * Version: 1.5.0
  * Author: Cyber Escola
  * Requires at least: 6.4
  * Requires PHP: 7.4
@@ -13,8 +13,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'CE_PAINEL_VERSION', '1.4.0' );
+define( 'CE_PAINEL_VERSION', '1.5.0' );
 require_once __DIR__ . '/autora.php';
+require_once __DIR__ . '/fontes.php';
 define( 'CE_PAINEL_URL', plugin_dir_url( __FILE__ ) );
 
 /* O tema Cyber Escola Neon vem junto com este plugin */
