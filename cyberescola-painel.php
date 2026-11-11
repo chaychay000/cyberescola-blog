@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Cyber Escola Painel
  * Description: Visual neon da Cyber Escola na tela de login, no painel e no editor do WordPress.
- * Version: 1.2.0
+ * Version: 1.2.1
  * Author: Cyber Escola
  * Requires at least: 6.4
  * Requires PHP: 7.4
@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'CE_PAINEL_VERSION', '1.2.0' );
+define( 'CE_PAINEL_VERSION', '1.2.1' );
 define( 'CE_PAINEL_URL', plugin_dir_url( __FILE__ ) );
 
 /* O tema Cyber Escola Neon vem junto com este plugin */
@@ -256,6 +256,22 @@ body.ce-editor #adminmenu li.menu-top > a { border-radius: 14px; margin: 6px 8px
 .interface-complementary-area .components-form-token-field__token-text, .interface-complementary-area .components-form-token-field__remove-token { background: rgba(240,33,138,.25) !important; color: #fff !important; }
 .interface-complementary-area .components-checkbox-control__input[type=checkbox] { background: rgba(10,9,24,.65); border-color: rgba(255,255,255,.3); }
 .interface-complementary-area .components-checkbox-control__input[type=checkbox]:checked { background: #B45CF0; border-color: #B45CF0; }
+/* Aba Bloco: letras e controles claros */
+.interface-complementary-area { color: #EDEBFF; }
+.interface-complementary-area .components-truncate, .interface-complementary-area .components-text, .interface-complementary-area .components-heading, .interface-complementary-area [class*="__text"], .interface-complementary-area [class*="__heading"], .interface-complementary-area .block-editor-panel-color-gradient-settings__color-name, .interface-complementary-area .block-editor-block-card__title, .interface-complementary-area .components-base-control__label, .interface-complementary-area label, .interface-complementary-area legend, .interface-complementary-area .components-tools-panel-header h2 { color: #EDEBFF !important; }
+.interface-complementary-area .block-editor-block-card__description, .interface-complementary-area .components-base-control__help { color: #A9A6C9 !important; }
+.interface-complementary-area a, .interface-complementary-area .components-external-link, .interface-complementary-area .components-external-link__contents, .interface-complementary-area .components-external-link__icon, .interface-complementary-area .block-editor-skip-to-selected-block { color: #C084FC !important; }
+.interface-complementary-area svg { color: #CFCDEA; fill: currentColor; }
+.interface-complementary-area .components-toggle-group-control { background: rgba(255,255,255,.05) !important; border-color: rgba(255,255,255,.18) !important; }
+.interface-complementary-area .components-toggle-group-control > div[role=presentation], .interface-complementary-area .components-toggle-group-control [class*="backdrop"] { background: rgba(180,92,240,.45) !important; }
+.interface-complementary-area .components-toggle-group-control button, .interface-complementary-area .components-toggle-group-control [class*="ButtonContentView"], .interface-complementary-area .components-toggle-group-control [class*="LabelView"] { color: #CFCDEA !important; }
+.interface-complementary-area .components-toggle-group-control button[aria-checked=true], .interface-complementary-area .components-toggle-group-control button[data-active-item] { color: #fff !important; }
+.interface-complementary-area .block-editor-block-styles__item { background: rgba(255,255,255,.05) !important; border: 1px solid rgba(255,255,255,.18) !important; color: #EDEBFF !important; border-radius: 10px !important; }
+.interface-complementary-area .block-editor-block-styles__item.is-active { background: linear-gradient(135deg, rgba(240,33,138,.45), rgba(180,92,240,.45)) !important; border-color: transparent !important; color: #fff !important; }
+.interface-complementary-area .block-editor-block-styles__item span { color: inherit !important; }
+.interface-complementary-area .block-editor-tools-panel-color-gradient-settings__item, .interface-complementary-area .block-editor-panel-color-gradient-settings__dropdown { background: rgba(255,255,255,.04) !important; border-color: rgba(255,255,255,.18) !important; color: #EDEBFF !important; }
+.interface-complementary-area input[type=text], .interface-complementary-area input[type=number], .interface-complementary-area input[type=url], .interface-complementary-area select, .interface-complementary-area textarea, .interface-complementary-area .components-input-control__container { background: rgba(10,9,24,.6) !important; color: #fff !important; border-color: rgba(255,255,255,.2) !important; }
+.interface-complementary-area .components-input-control__backdrop { border-color: rgba(255,255,255,.2) !important; }
 /* Painel "Pronto para publicar?" */
 .ce-stats { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12.5px; color: #A9A6C9; margin: 2px 0 12px; }
 .ce-stats b { color: #fff; }
