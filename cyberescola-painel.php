@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Cyber Escola Painel
  * Description: Visual neon da Cyber Escola na tela de login, no painel e no editor do WordPress.
- * Version: 1.5.1
+ * Version: 1.6.0
  * Author: Cyber Escola
  * Requires at least: 6.4
  * Requires PHP: 7.4
@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'CE_PAINEL_VERSION', '1.5.1' );
+define( 'CE_PAINEL_VERSION', '1.6.0' );
 require_once __DIR__ . '/autora.php';
 require_once __DIR__ . '/fontes.php';
 define( 'CE_PAINEL_URL', plugin_dir_url( __FILE__ ) );
@@ -199,6 +199,118 @@ function ce_painel_extra( $which ) {
 			}
 		} ).observe( document.body, { childList: true, subtree: true } );
 	}
+	/* Barra dos blocos só aparece quando o texto está marcado (ou em blocos sem texto) */
+	( function () {
+		var ultimo = null;
+		wp.data.subscribe( function () {
+			var be = wp.data.select( 'core/block-editor' );
+			if ( ! be || ! be.getSelectionStart ) { return; }
+			var s = be.getSelectionStart(), e = be.getSelectionEnd();
+			var esconder = !! ( s && s.attributeKey && e && s.clientId === e.clientId && s.offset === e.offset );
+			if ( esconder !== ultimo ) {
+				ultimo = esconder;
+				document.body.classList.toggle( 'ce-sem-selecao', esconder );
+			}
+		} );
+	} )();
+	/* Formatação do texto na aba Bloco, junto da Tipografia */
+	( function () {
+		if ( ! wp.hooks || ! wp.compose || ! wp.blockEditor || ! wp.richText || ! wp.components ) { return; }
+		var el = wp.element.createElement;
+		var BLOCOS = [ 'core/paragraph', 'core/heading', 'core/list-item', 'core/pullquote', 'core/button', 'core/details', 'core/quote' ];
+		function htmlDe( v ) {
+			if ( typeof v === 'string' ) { return v; }
+			if ( v && v.toHTMLString ) { return v.toHTMLString(); }
+			return v ? String( v ) : '';
+		}
+		function alvo( clientId ) {
+			var be = wp.data.select( 'core/block-editor' );
+			var s = be.getSelectionStart(), e = be.getSelectionEnd();
+			var bloco = be.getBlock( clientId );
+			if ( ! bloco ) { return null; }
+			var chave = ( s && s.clientId === clientId && s.attributeKey ) ? s.attributeKey : ( bloco.attributes.content !== undefined ? 'content' : ( bloco.attributes.text !== undefined ? 'text' : ( bloco.attributes.summary !== undefined ? 'summary' : null ) ) );
+			if ( ! chave ) { return null; }
+			var valor = wp.richText.create( { html: htmlDe( bloco.attributes[ chave ] ) } );
+			var ini = 0, fim = valor.text.length;
+			if ( s && e && s.clientId === clientId && e.clientId === clientId && s.attributeKey === chave && s.offset !== e.offset ) {
+				ini = Math.min( s.offset, e.offset );
+				fim = Math.max( s.offset, e.offset );
+			}
+			valor.start = ini;
+			valor.end = fim;
+			return { chave: chave, valor: valor, ini: ini, fim: fim };
+		}
+		function aplicar( clientId, tipo, atributos ) {
+			var a = alvo( clientId );
+			if ( ! a || a.ini === a.fim ) { return; }
+			var novo;
+			if ( tipo === 'core/link' ) {
+				var ativo = wp.richText.getActiveFormat( a.valor, 'core/link' );
+				if ( ativo ) {
+					novo = wp.richText.removeFormat( a.valor, 'core/link', a.ini, a.fim );
+				} else {
+					var url = window.prompt( 'Cole o endereço do link:', 'https://' );
+					if ( ! url || url === 'https://' ) { return; }
+					novo = wp.richText.applyFormat( a.valor, { type: 'core/link', attributes: { url: url } }, a.ini, a.fim );
+				}
+			} else {
+				novo = wp.richText.toggleFormat( a.valor, { type: tipo, attributes: atributos } );
+			}
+			var upd = {};
+			upd[ a.chave ] = wp.richText.toHTMLString( { value: novo } );
+			wp.data.dispatch( 'core/block-editor' ).updateBlockAttributes( clientId, upd );
+		}
+		function alinhar( props, lado ) {
+			var tipo = wp.blocks.getBlockType( props.name );
+			var at = tipo && tipo.attributes ? tipo.attributes : {};
+			if ( at.textAlign ) {
+				props.setAttributes( { textAlign: props.attributes.textAlign === lado ? undefined : lado } );
+			} else if ( at.align ) {
+				props.setAttributes( { align: props.attributes.align === lado ? undefined : lado } );
+			} else {
+				var st = Object.assign( {}, props.attributes.style || {} );
+				st.typography = Object.assign( {}, st.typography || {}, { textAlign: lado } );
+				props.setAttributes( { style: st } );
+			}
+		}
+		function Botao( rotulo, titulo, estilo, onClick ) {
+			return el( wp.components.Button, { className: 'ce-fmt-btn', label: titulo, showTooltip: true, onMouseDown: function ( ev ) { ev.preventDefault(); }, onClick: onClick }, el( 'span', { style: estilo }, rotulo ) );
+		}
+		function Painel( props ) {
+			var id = props.clientId;
+			return el( 'div', { className: 'ce-fmt' },
+				el( 'div', { className: 'ce-fmt-tit' }, 'Formatação ', el( 'small', null, '(marque o texto antes)' ) ),
+				el( 'div', { className: 'ce-fmt-linha' },
+					Botao( 'B', 'Negrito', { fontWeight: 800 }, function () { aplicar( id, 'core/bold' ); } ),
+					Botao( 'I', 'Itálico', { fontStyle: 'italic', fontFamily: 'Georgia, serif' }, function () { aplicar( id, 'core/italic' ); } ),
+					Botao( 'S', 'Sublinhado', { textDecoration: 'underline' }, function () { aplicar( id, 'core/underline' ); } ),
+					Botao( 'S', 'Riscado', { textDecoration: 'line-through' }, function () { aplicar( id, 'core/strikethrough' ); } ),
+					Botao( '🔗', 'Link', {}, function () { aplicar( id, 'core/link' ); } ),
+					Botao( 'x²', 'Sobrescrito', {}, function () { aplicar( id, 'core/superscript' ); } ),
+					Botao( '✎', 'Marca-texto', { background: '#FFE45C', color: '#1A1433', padding: '0 4px', borderRadius: '4px' }, function () { aplicar( id, 'core/text-color', { 'class': 'has-inline-color', style: 'background-color:#FFE45C' } ); } )
+				),
+				el( 'div', { className: 'ce-fmt-linha' },
+					Botao( '⯇', 'Alinhar à esquerda', {}, function () { alinhar( props, 'left' ); } ),
+					Botao( '≡', 'Centralizar', {}, function () { alinhar( props, 'center' ); } ),
+					Botao( '⯈', 'Alinhar à direita', {}, function () { alinhar( props, 'right' ); } )
+				)
+			);
+		}
+		var comPainel = wp.compose.createHigherOrderComponent( function ( BlockEdit ) {
+			return function ( props ) {
+				if ( ! props.isSelected || BLOCOS.indexOf( props.name ) < 0 ) {
+					return el( BlockEdit, props );
+				}
+				var Item = wp.components.__experimentalToolsPanelItem;
+				var conteudo = el( Painel, props );
+				var inspetor = Item
+					? el( wp.blockEditor.InspectorControls, { group: 'typography' }, el( Item, { hasValue: function () { return false; }, label: 'Formatação', onDeselect: function () {}, isShownByDefault: true, panelId: props.clientId, className: 'ce-fmt-item' }, conteudo ) )
+					: el( wp.blockEditor.InspectorControls, null, el( wp.components.PanelBody, { title: 'Formatação' }, conteudo ) );
+				return el( wp.element.Fragment, null, el( BlockEdit, props ), inspetor );
+			};
+		}, 'ceFormatacao' );
+		wp.hooks.addFilter( 'editor.BlockEdit', 'cyberescola/formatacao', comPainel );
+	} )();
 	if ( ! Panel ) { return; }
 	function Pronto() {
 		var d = wp.data.useSelect( function ( select ) {
@@ -350,6 +462,14 @@ body.ce-editor #adminmenu li.menu-top > a { border-radius: 14px; margin: 6px 8px
 .components-custom-select-control__item { color: #EDEBFF !important; font-size: 15px !important; }
 .components-custom-select-control__item[aria-selected=true], .components-custom-select-control__item[data-active-item], .components-custom-select-control__item:hover { background: rgba(180,92,240,.35) !important; color: #fff !important; }
 .components-custom-select-control__item-hint { color: #A9A6C9 !important; }
+/* Barra dos blocos só com texto marcado + painel Formatação */
+body.ce-sem-selecao .block-editor-block-list__block-popover:has(.block-editor-block-contextual-toolbar), body.ce-sem-selecao .block-editor-block-contextual-toolbar { display: none !important; }
+.ce-fmt-item, .ce-fmt { grid-column: 1 / -1; }
+.ce-fmt-tit { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #EDEBFF; margin: 4px 0 8px; }
+.ce-fmt-tit small { text-transform: none; letter-spacing: 0; font-weight: 500; color: #8F8BAE; }
+.ce-fmt-linha { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+.ce-fmt .components-button.ce-fmt-btn { min-width: 36px; height: 36px; padding: 0 8px; justify-content: center; border-radius: 10px; border: 1px solid rgba(255,255,255,.18) !important; background: rgba(10,9,24,.6) !important; color: #fff !important; font-size: 15px; }
+.ce-fmt .components-button.ce-fmt-btn:hover { background: linear-gradient(135deg, rgba(240,33,138,.5), rgba(180,92,240,.5)) !important; border-color: transparent !important; }
 /* Painel "Pronto para publicar?" */
 .ce-stats { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12.5px; color: #A9A6C9; margin: 2px 0 12px; }
 .ce-stats b { color: #fff; }
