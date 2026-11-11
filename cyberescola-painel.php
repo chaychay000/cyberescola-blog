@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Cyber Escola Painel
  * Description: Visual neon da Cyber Escola na tela de login, no painel e no editor do WordPress.
- * Version: 1.3.9
+ * Version: 1.4.0
  * Author: Cyber Escola
  * Requires at least: 6.4
  * Requires PHP: 7.4
@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'CE_PAINEL_VERSION', '1.3.9' );
+define( 'CE_PAINEL_VERSION', '1.4.0' );
 require_once __DIR__ . '/autora.php';
 define( 'CE_PAINEL_URL', plugin_dir_url( __FILE__ ) );
 
@@ -413,6 +413,28 @@ CSS;
 .editor-styles-wrapper .wp-block-file { padding: 16px 18px; border-radius: 16px; border: 1px dashed rgba(240,33,138,.5); background: rgba(240,33,138,.08); }
 .editor-styles-wrapper .wp-block-file .wp-block-file__button { background: linear-gradient(90deg,#FF8A4C,#F0218A,#B45CF0) !important; border-radius: 12px; color: #fff; }
 .editor-styles-wrapper table td, .editor-styles-wrapper table th { border-color: rgba(255,255,255,.14); }
+/* Folha branca para escrever */
+.editor-styles-wrapper .edit-post-visual-editor__post-title-wrapper,
+.editor-styles-wrapper .editor-visual-editor__post-title-wrapper {
+	background: linear-gradient(90deg, #FF8A4C, #F0218A 40%, #B45CF0 70%, #1FC1D6) top / 100% 6px no-repeat, #FFFFFF !important;
+	border-color: rgba(192,132,252,.55) !important;
+}
+.editor-styles-wrapper .is-root-container.block-editor-block-list__layout,
+.editor-styles-wrapper > .is-root-container,
+.editor-styles-wrapper .wp-block-post-content.is-root-container {
+	background: #FFFFFF !important; border-color: rgba(192,132,252,.55) !important;
+	box-shadow: 0 30px 80px -20px rgba(180,92,240,.55), 0 0 0 1px rgba(255,255,255,.04) !important;
+	color: #2A2545 !important;
+}
+.editor-styles-wrapper .wp-block-post-title, .editor-styles-wrapper .editor-post-title__input { color: #1A1433 !important; }
+.editor-styles-wrapper .wp-block-post-title [data-rich-text-placeholder]::after { color: #C9C4DE !important; }
+.editor-styles-wrapper .is-root-container p, .editor-styles-wrapper .is-root-container li, .editor-styles-wrapper .is-root-container td, .editor-styles-wrapper .is-root-container figcaption { color: #3A3556 !important; }
+.editor-styles-wrapper .is-root-container h1, .editor-styles-wrapper .is-root-container h2, .editor-styles-wrapper .is-root-container h3, .editor-styles-wrapper .is-root-container h4, .editor-styles-wrapper .is-root-container h5, .editor-styles-wrapper .is-root-container h6 { color: #1A1433 !important; }
+.editor-styles-wrapper .is-root-container a { color: #B4239A !important; }
+.editor-styles-wrapper .is-root-container [data-rich-text-placeholder]::after, .editor-styles-wrapper .block-editor-default-block-appender__content { color: #9A95B5 !important; }
+.editor-styles-wrapper .is-root-container blockquote { color: #3A3556 !important; border-color: #B45CF0 !important; }
+.editor-styles-wrapper .is-root-container table td, .editor-styles-wrapper .is-root-container table th { border-color: #E3DFF0 !important; }
+.editor-styles-wrapper .is-root-container hr, .editor-styles-wrapper .is-root-container .wp-block-separator { border-color: #E3DFF0 !important; color: #E3DFF0 !important; }
 CSS;
 	}
 	return '';
