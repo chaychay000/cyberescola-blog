@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Cyber Escola Painel
  * Description: Visual neon da Cyber Escola na tela de login, no painel e no editor do WordPress.
- * Version: 1.3.2
+ * Version: 1.3.3
  * Author: Cyber Escola
  * Requires at least: 6.4
  * Requires PHP: 7.4
@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'CE_PAINEL_VERSION', '1.3.2' );
+define( 'CE_PAINEL_VERSION', '1.3.3' );
 require_once __DIR__ . '/autora.php';
 define( 'CE_PAINEL_URL', plugin_dir_url( __FILE__ ) );
 
@@ -274,6 +274,22 @@ body.ce-editor #adminmenu li.menu-top > a { border-radius: 14px; margin: 6px 8px
 .interface-complementary-area .block-editor-tools-panel-color-gradient-settings__item, .interface-complementary-area .block-editor-panel-color-gradient-settings__dropdown { background: rgba(255,255,255,.04) !important; border-color: rgba(255,255,255,.18) !important; color: #EDEBFF !important; }
 .interface-complementary-area input[type=text], .interface-complementary-area input[type=number], .interface-complementary-area input[type=url], .interface-complementary-area select, .interface-complementary-area textarea, .interface-complementary-area .components-input-control__container { background: rgba(10,9,24,.6) !important; color: #fff !important; border-color: rgba(255,255,255,.2) !important; }
 .interface-complementary-area .components-input-control__backdrop { border-color: rgba(255,255,255,.2) !important; }
+/* Cores escuras em tudo (tela cheia, inserção e lateral) */
+.editor-document-bar, .editor-document-bar__command, .editor-document-bar__command:focus { background: rgba(255,255,255,.06) !important; color: #EDEBFF !important; }
+.editor-document-bar:hover, .editor-document-bar__command:hover { background: rgba(255,255,255,.11) !important; }
+.block-editor-block-inspector__no-blocks { background: transparent !important; color: #A9A6C9 !important; border: 0 !important; }
+.interface-interface-skeleton__secondary-sidebar, .editor-inserter-sidebar, .editor-list-view-sidebar, .block-editor-tabbed-sidebar, .block-editor-tabbed-sidebar__tablist-and-close-button, .block-editor-inserter__search, .block-editor-inserter__panel-header, .block-editor-inserter__tabs { background: #14112A !important; border-color: rgba(255,255,255,.08) !important; color: #EDEBFF; }
+.block-editor-tabbed-sidebar__close-button { background: transparent !important; color: #CFCDEA !important; }
+.block-editor-tabbed-sidebar [role=tab] { color: #CFCDEA !important; }
+.block-editor-tabbed-sidebar [role=tab][aria-selected=true] { color: #fff !important; }
+.components-search-control { background: transparent !important; }
+.editor-visual-editor, .edit-post-visual-editor { background: #0B0A1A !important; }
+.editor-layout__toggle-publish-panel { background: #14112A !important; border-color: rgba(255,255,255,.08) !important; }
+.components-form-toggle__track { background: rgba(255,255,255,.08) !important; border-color: rgba(255,255,255,.35) !important; }
+.components-form-toggle.is-checked .components-form-toggle__track { background: #B45CF0 !important; border-color: #B45CF0 !important; }
+.components-form-toggle__thumb { background: #CFCDEA !important; border-color: #CFCDEA !important; }
+.rank-math-toolbar-score { background: rgba(255,255,255,.06) !important; color: #EDEBFF !important; border-color: rgba(255,255,255,.14) !important; }
+.interface-interface-skeleton *, .editor-header * { scrollbar-color: rgba(180,92,240,.45) transparent; scrollbar-width: thin; }
 /* Painel "Pronto para publicar?" */
 .ce-stats { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12.5px; color: #A9A6C9; margin: 2px 0 12px; }
 .ce-stats b { color: #fff; }
