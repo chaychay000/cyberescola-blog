@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Cyber Escola Painel
  * Description: Visual neon da Cyber Escola na tela de login, no painel e no editor do WordPress.
- * Version: 1.3.5
+ * Version: 1.3.6
  * Author: Cyber Escola
  * Requires at least: 6.4
  * Requires PHP: 7.4
@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'CE_PAINEL_VERSION', '1.3.5' );
+define( 'CE_PAINEL_VERSION', '1.3.6' );
 require_once __DIR__ . '/autora.php';
 define( 'CE_PAINEL_URL', plugin_dir_url( __FILE__ ) );
 
@@ -427,7 +427,9 @@ body.login {
 .login .forgetmenot label { font-weight: 500; }
 .login input[type=checkbox] { background: rgba(10,9,24,.65); border-color: rgba(255,255,255,.3); border-radius: 6px; }
 .login input[type=checkbox]:checked::before { filter: hue-rotate(260deg) saturate(3); }
-.login .cf-turnstile, .login .cf-turnstile-div { margin: 16px 0 6px; }
+.login .cf-turnstile, .login .cf-turnstile-div { margin: 16px auto 10px !important; display: flex !important; justify-content: center; width: 100%; }
+.login .cf-turnstile iframe { margin: 0 auto !important; }
+.login .cf-turnstile-br { display: none; }
 .login .submit { margin-top: 10px; clear: both; }
 .wp-core-ui.login .button-primary, .login #wp-submit {
 	float: none; width: 100%; height: 56px; margin-top: 14px; border: 0; border-radius: 16px; font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 17px; color: #fff; text-shadow: none;
