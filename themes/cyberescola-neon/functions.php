@@ -147,6 +147,11 @@ function ce_cover( $size = 'ce-card', $post = null ) {
 }
 
 function ce_author_avatar( $user_id ) {
+	$foto = (int) get_user_meta( $user_id, 'ce_foto', true );
+	$src  = $foto ? wp_get_attachment_image_url( $foto, 'thumbnail' ) : '';
+	if ( $src ) {
+		return '<span class="avatar-grad"><img src="' . esc_url( $src ) . '" alt="" loading="lazy"></span>';
+	}
 	$name     = get_the_author_meta( 'display_name', $user_id );
 	$initials = '';
 	foreach ( preg_split( '/\s+/u', trim( $name ) ) as $part ) {
@@ -248,6 +253,10 @@ function ce_footer() { ?>
 <?php }
 function ce_sidebar() { ?><?php
 $photo_id = (int) ce_opt( 'ce_author_photo', 0 );
+if ( ! $photo_id ) {
+	$autoras = get_users( array( 'role' => 'ce_autora', 'number' => 1, 'meta_key' => 'ce_foto', 'fields' => 'ID' ) );
+	$photo_id = $autoras ? (int) get_user_meta( $autoras[0], 'ce_foto', true ) : 0;
+}
 $photo    = $photo_id ? wp_get_attachment_image_url( $photo_id, 'medium' ) : ce_img( 'ana-reis.jpg' );
 ?>
 <aside class="sidebar" aria-label="Barra lateral">
