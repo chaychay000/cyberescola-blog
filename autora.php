@@ -69,6 +69,20 @@ add_filter( 'pre_get_avatar_data', function ( $args, $id_or_email ) {
 	return $args;
 }, 10, 2 );
 
+/* ---------- Caixas extras do editor só para administradores ---------- */
+add_action( 'add_meta_boxes', function () {
+	if ( current_user_can( 'manage_options' ) ) {
+		return;
+	}
+	foreach ( array( 'litespeed_meta_boxes', 'external_featured_image' ) as $id ) {
+		foreach ( array( 'normal', 'side', 'advanced' ) as $ctx ) {
+			remove_meta_box( $id, null, $ctx );
+			remove_meta_box( $id, 'post', $ctx );
+			remove_meta_box( $id, 'page', $ctx );
+		}
+	}
+}, PHP_INT_MAX );
+
 function ce_e_autora( $user = null ) {
 	$user = $user ? $user : wp_get_current_user();
 	return $user && ! empty( $user->roles ) && in_array( CE_AUTORA_ROLE, (array) $user->roles, true );
