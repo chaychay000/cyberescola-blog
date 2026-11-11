@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Cyber Escola Painel
  * Description: Visual neon da Cyber Escola na tela de login, no painel e no editor do WordPress.
- * Version: 1.0.0
+ * Version: 1.0.1
  * Author: Cyber Escola
  * Requires at least: 6.4
  * Requires PHP: 7.4
@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'CE_PAINEL_VERSION', '1.0.0' );
+define( 'CE_PAINEL_VERSION', '1.0.1' );
 define( 'CE_PAINEL_URL', plugin_dir_url( __FILE__ ) );
 
 /* O tema Cyber Escola Neon vem junto com este plugin */
@@ -99,14 +99,14 @@ function ce_painel_css( $which ) {
 		case 'login':
 			return <<<'CSS'
 body.login {
-	min-height: 100vh; display: flex; align-items: center; justify-content: center; font-family: 'Inter', system-ui, sans-serif; color: #EDEBFF;
+	min-height: 100vh; font-family: 'Inter', system-ui, sans-serif; color: #EDEBFF;
 	background:
 		radial-gradient(900px 700px at 0% 0%, rgba(180,92,240,.38), transparent 60%),
 		radial-gradient(700px 600px at 100% 100%, rgba(31,193,214,.25), transparent 60%),
 		radial-gradient(600px 500px at 70% 0%, rgba(240,33,138,.22), transparent 60%),
 		#0B0A1A !important;
 }
-.login #login { width: 440px; max-width: calc(100% - 32px); padding: 40px 0; }
+.login #login { width: 440px; max-width: calc(100% - 32px); margin: 0 auto; padding: 6vh 0 24px; }
 .login h1 a {
 	width: 250px !important; height: 136px !important; margin: 0 auto 22px !important;
 	background-size: 250px auto, 210px auto !important; background-position: center top, center 78px !important; background-repeat: no-repeat !important;
