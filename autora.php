@@ -83,6 +83,28 @@ add_action( 'add_meta_boxes', function () {
 	}
 }, PHP_INT_MAX );
 
+/* ---------- Biblioteca de mídia: cada autor vê só o que enviou (admin vê tudo) ---------- */
+function ce_midia_so_minha() {
+	return is_user_logged_in() && ! current_user_can( 'manage_options' );
+}
+add_filter( 'ajax_query_attachments_args', function ( $query ) {
+	if ( ce_midia_so_minha() ) {
+		$query['author'] = get_current_user_id();
+	}
+	return $query;
+} );
+add_filter( 'rest_attachment_query', function ( $args ) {
+	if ( ce_midia_so_minha() ) {
+		$args['author'] = get_current_user_id();
+	}
+	return $args;
+} );
+add_action( 'pre_get_posts', function ( $q ) {
+	if ( is_admin() && $q->is_main_query() && 'attachment' === $q->get( 'post_type' ) && ce_midia_so_minha() ) {
+		$q->set( 'author', get_current_user_id() );
+	}
+} );
+
 function ce_e_autora( $user = null ) {
 	$user = $user ? $user : wp_get_current_user();
 	return $user && ! empty( $user->roles ) && in_array( CE_AUTORA_ROLE, (array) $user->roles, true );
