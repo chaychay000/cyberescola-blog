@@ -12,7 +12,7 @@ define( 'CE_AUTORA_ROLE', 'ce_autora' );
 
 /* ---------- Cria / atualiza o perfil ---------- */
 add_action( 'init', function () {
-	if ( get_option( 'ce_autora_role_v' ) === '1' && get_role( CE_AUTORA_ROLE ) ) {
+	if ( get_option( 'ce_autora_role_v' ) === '2' && get_role( CE_AUTORA_ROLE ) ) {
 		return;
 	}
 	remove_role( CE_AUTORA_ROLE );
@@ -28,8 +28,10 @@ add_action( 'init', function () {
 		'delete_published_posts' => true,
 		'upload_files'           => true,
 		'manage_categories'      => true,
+		'edit_pages'             => true,
+		'edit_published_pages'   => true,
 	) );
-	update_option( 'ce_autora_role_v', '1' );
+	update_option( 'ce_autora_role_v', '2' );
 } );
 
 /* ---------- Foto do perfil (sem Gravatar) ---------- */
@@ -238,6 +240,19 @@ function ce_autora_tela() {
 			<div><b><?php echo (int) $count['future']; ?></b><span>agendados</span></div>
 		</div>
 
+		<?php
+		$minhas_paginas = get_posts( array( 'post_type' => 'page', 'author' => $user->ID, 'post_status' => array( 'publish', 'draft', 'pending', 'private' ), 'numberposts' => 10 ) );
+		foreach ( $minhas_paginas as $pg ) :
+			?>
+			<div class="ce-a-pagina">
+				<div><span class="ce-a-kicker">MINHA PÁGINA</span><b><?php echo esc_html( get_the_title( $pg ) ); ?></b><small>A página que conta quem é você no blog.</small></div>
+				<div class="ce-a-acoes">
+					<a href="<?php echo esc_url( get_edit_post_link( $pg->ID ) ); ?>">Editar página</a>
+					<a href="<?php echo esc_url( get_permalink( $pg ) ); ?>" target="_blank" rel="noopener">Ver</a>
+				</div>
+			</div>
+		<?php endforeach; ?>
+
 		<h2 class="ce-a-h2">Meus artigos</h2>
 		<?php if ( empty( $posts ) ) : ?>
 			<div class="ce-a-vazio">
@@ -308,6 +323,10 @@ body.ce-so-editor { background: #0B0A1A; }
 	background: linear-gradient(90deg, #FF8A4C, #F0218A 55%, #B45CF0); box-shadow: 0 14px 30px -10px rgba(240,33,138,.7); }
 .ce-a-novo:hover { filter: brightness(1.08); }
 .ce-a-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.ce-a-pagina { margin-top: 14px; display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; padding: 16px 18px; border-radius: 18px; border: 1px solid rgba(31,193,214,.35); background: linear-gradient(135deg, rgba(31,193,214,.12), rgba(180,92,240,.12)); }
+.ce-a-pagina b { display: block; color: #fff; font-family: 'Poppins', sans-serif; font-size: 18px; margin-top: 4px; }
+.ce-a-pagina small { color: #A9A6C9; font-size: 13px; }
+.ce-a-pagina .ce-a-kicker { color: #1FC1D6; }
 .ce-a-stats div { padding: 16px 20px; border-radius: 18px; border: 1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.04); }
 .ce-a-stats b { display: block; font-family: 'Poppins', sans-serif; font-size: 28px; color: #fff; }
 .ce-a-stats span { color: #A9A6C9; font-size: 13px; }
