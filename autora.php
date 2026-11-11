@@ -83,6 +83,14 @@ add_action( 'add_meta_boxes', function () {
 	}
 }, PHP_INT_MAX );
 
+/* ---------- Painel "Avançado" dos blocos só para administradores ---------- */
+add_action( 'admin_head', function () {
+	if ( current_user_can( 'manage_options' ) ) {
+		return;
+	}
+	echo '<style>.block-editor-block-inspector__advanced, .block-editor-block-inspector .block-editor-block-inspector__advanced { display: none !important; }</style>';
+} );
+
 /* ---------- Biblioteca de mídia: cada autor vê só o que enviou (admin vê tudo) ---------- */
 function ce_midia_so_minha() {
 	return is_user_logged_in() && ! current_user_can( 'manage_options' );
