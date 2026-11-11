@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Cyber Escola Painel
  * Description: Visual neon da Cyber Escola na tela de login, no painel e no editor do WordPress.
- * Version: 1.3.6
+ * Version: 1.3.7
  * Author: Cyber Escola
  * Requires at least: 6.4
  * Requires PHP: 7.4
@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'CE_PAINEL_VERSION', '1.3.6' );
+define( 'CE_PAINEL_VERSION', '1.3.7' );
 require_once __DIR__ . '/autora.php';
 define( 'CE_PAINEL_URL', plugin_dir_url( __FILE__ ) );
 
@@ -168,6 +168,22 @@ function ce_painel_extra( $which ) {
 		alvo.insertBefore( b, alvo.children[ 1 ] || null );
 	}
 	setInterval( ceBotaoImagem, 1000 );
+	/* Autora: esconde do "+" os blocos que ela não usa */
+	if ( window.ceSoEditor ) {
+		wp.domReady( function () {
+			var esconder = [ 'core/freeform', 'core/code', 'core/math', 'core/preformatted', 'core/verse', 'core/html', 'core/shortcode', 'core/archives', 'core/calendar', 'core/categories', 'core/latest-comments', 'core/latest-posts', 'core/page-list', 'core/rss', 'core/search', 'core/tag-cloud', 'core/more', 'core/nextpage', 'core/playlist', 'core/icon', 'core/navigation', 'core/site-logo', 'core/site-title', 'core/site-tagline', 'core/query', 'core/avatar', 'core/post-title', 'core/post-excerpt', 'core/post-featured-image', 'core/post-author-name', 'core/post-comments-count', 'core/post-comments-link', 'core/post-date', 'core/post-terms', 'core/post-navigation-link', 'core/post-time-to-read', 'core/read-more', 'core/comments', 'core/post-comments-form', 'core/loginout', 'core/term-count', 'core/term-description', 'core/term-name', 'core/terms-query', 'core/query-title', 'core/post-author-biography', 'core/breadcrumbs', 'rank-math/command', 'rank-math/rich-snippet', 'rank-math/howto-block', 'hostinger-ai-plugin/block', 'hostinger-reach/subscription' ];
+			setTimeout( function () {
+				try {
+					var ed = wp.data.dispatch( 'core/editor' );
+					if ( ed && ed.hideBlockTypes ) {
+						ed.hideBlockTypes( esconder );
+					} else if ( wp.data.dispatch( 'core/edit-post' ).hideBlockTypes ) {
+						wp.data.dispatch( 'core/edit-post' ).hideBlockTypes( esconder );
+					}
+				} catch ( e ) {}
+			}, 800 );
+		} );
+	}
 	if ( ! Panel ) { return; }
 	function Pronto() {
 		var d = wp.data.useSelect( function ( select ) {
@@ -300,6 +316,13 @@ body.ce-editor #adminmenu li.menu-top > a { border-radius: 14px; margin: 6px 8px
 .commands-command-menu [cmdk-item] svg { fill: currentColor !important; }
 .commands-command-menu [cmdk-item][aria-selected=true], .commands-command-menu [cmdk-item][data-selected=true], .commands-command-menu [cmdk-item]:hover { background: linear-gradient(90deg, rgba(240,33,138,.4), rgba(180,92,240,.4)) !important; color: #fff !important; }
 .commands-command-menu [cmdk-group-heading], .commands-command-menu [cmdk-empty] { color: #8F8BAE !important; }
+/* Pré-visualização dos blocos no "+" */
+.block-editor-inserter__preview-container { background: #14112A !important; border: 1px solid rgba(255,255,255,.14) !important; border-radius: 16px !important; box-shadow: 0 30px 70px rgba(0,0,0,.7) !important; overflow: hidden; }
+.block-editor-inserter__preview, .block-editor-inserter__preview-content { background: transparent !important; }
+.block-editor-inserter__preview-content-missing { background: rgba(255,255,255,.04) !important; color: #C084FC !important; border-radius: 12px; }
+.block-editor-inserter__preview-container .block-editor-block-card__title, .block-editor-inserter__preview-container .block-editor-block-card__name { color: #fff !important; }
+.block-editor-inserter__preview-container .block-editor-block-card__description { color: #A9A6C9 !important; }
+.block-editor-inserter__preview-container .block-editor-block-icon { color: #C084FC !important; fill: #C084FC !important; }
 /* Painel "Pronto para publicar?" */
 .ce-stats { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12.5px; color: #A9A6C9; margin: 2px 0 12px; }
 .ce-stats b { color: #fff; }
