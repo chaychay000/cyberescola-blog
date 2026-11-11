@@ -32,6 +32,43 @@ add_action( 'init', function () {
 	update_option( 'ce_autora_role_v', '1' );
 } );
 
+/* ---------- Foto do perfil (sem Gravatar) ---------- */
+add_action( 'init', function () {
+	register_meta( 'user', 'ce_foto', array(
+		'type'          => 'integer',
+		'single'        => true,
+		'show_in_rest'  => true,
+		'auth_callback' => function ( $allowed, $key, $user_id ) {
+			return current_user_can( 'edit_user', $user_id );
+		},
+	) );
+} );
+
+add_filter( 'pre_get_avatar_data', function ( $args, $id_or_email ) {
+	$uid = 0;
+	if ( is_numeric( $id_or_email ) ) {
+		$uid = (int) $id_or_email;
+	} elseif ( $id_or_email instanceof WP_User ) {
+		$uid = $id_or_email->ID;
+	} elseif ( $id_or_email instanceof WP_Post ) {
+		$uid = (int) $id_or_email->post_author;
+	} elseif ( $id_or_email instanceof WP_Comment ) {
+		$uid = (int) $id_or_email->user_id;
+	} elseif ( is_string( $id_or_email ) && is_email( $id_or_email ) ) {
+		$u   = get_user_by( 'email', $id_or_email );
+		$uid = $u ? $u->ID : 0;
+	}
+	if ( $uid ) {
+		$foto = (int) get_user_meta( $uid, 'ce_foto', true );
+		$src  = $foto ? wp_get_attachment_image_url( $foto, 'thumbnail' ) : '';
+		if ( $src ) {
+			$args['url']          = $src;
+			$args['found_avatar'] = true;
+		}
+	}
+	return $args;
+}, 10, 2 );
+
 function ce_e_autora( $user = null ) {
 	$user = $user ? $user : wp_get_current_user();
 	return $user && ! empty( $user->roles ) && in_array( CE_AUTORA_ROLE, (array) $user->roles, true );
