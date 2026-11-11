@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Cyber Escola Painel
  * Description: Visual neon da Cyber Escola na tela de login, no painel e no editor do WordPress.
- * Version: 1.1.0
+ * Version: 1.1.1
  * Author: Cyber Escola
  * Requires at least: 6.4
  * Requires PHP: 7.4
@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'CE_PAINEL_VERSION', '1.1.0' );
+define( 'CE_PAINEL_VERSION', '1.1.1' );
 define( 'CE_PAINEL_URL', plugin_dir_url( __FILE__ ) );
 
 /* O tema Cyber Escola Neon vem junto com este plugin */
@@ -120,12 +120,14 @@ function ce_painel_extra( $which ) {
 	if ( ! wp || ! wp.plugins || ! wp.data || ! wp.element ) { return; }
 	var el = wp.element.createElement;
 	var Panel = ( wp.editor && wp.editor.PluginDocumentSettingPanel ) || ( wp.editPost && wp.editPost.PluginDocumentSettingPanel );
-	wp.domReady( function () {
+	var ceTries = 0;
+	var ceStop = wp.data.subscribe( function () {
 		try {
 			var prefs = wp.data.select( 'core/preferences' );
 			if ( prefs && prefs.get( 'core/edit-post', 'fullscreenMode' ) ) {
 				wp.data.dispatch( 'core/preferences' ).set( 'core/edit-post', 'fullscreenMode', false );
-			}
+				ceStop();
+			} else if ( ++ceTries > 400 ) { ceStop(); }
 		} catch ( e ) {}
 	} );
 	if ( ! Panel ) { return; }
@@ -188,6 +190,11 @@ body.ce-editor #adminmenu li.menu-top > a { border-radius: 14px; margin: 6px 8px
 }
 .editor-document-bar { border-radius: 12px !important; border: 1px solid rgba(255,255,255,.12) !important; min-height: 40px; }
 .editor-document-bar__title, .editor-document-bar .components-button { font-family: 'Inter', sans-serif; }
+.editor-document-bar__post-title, .editor-document-bar .components-text { color: #EDEBFF !important; }
+.editor-document-bar__post-type-label { color: #A9A6C9 !important; }
+.block-editor-inserter__search .components-input-control__container, .components-search-control .components-input-control__container { background: rgba(255,255,255,.06) !important; border-radius: 10px; }
+.block-editor-inserter__search input[type=search], .components-search-control input[type=search] { background: transparent !important; color: #fff !important; }
+.ce-pronto .components-panel__body-toggle.components-button { font-size: 13px !important; }
 /* Lateral em cartões */
 .interface-complementary-area .components-panel { padding: 6px 0 20px; }
 .interface-complementary-area .components-panel__body {
