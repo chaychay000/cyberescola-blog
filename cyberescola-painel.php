@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Cyber Escola Painel
  * Description: Visual neon da Cyber Escola na tela de login, no painel e no editor do WordPress.
- * Version: 1.3.7
+ * Version: 1.3.8
  * Author: Cyber Escola
  * Requires at least: 6.4
  * Requires PHP: 7.4
@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'CE_PAINEL_VERSION', '1.3.7' );
+define( 'CE_PAINEL_VERSION', '1.3.8' );
 require_once __DIR__ . '/autora.php';
 define( 'CE_PAINEL_URL', plugin_dir_url( __FILE__ ) );
 
@@ -323,6 +323,12 @@ body.ce-editor #adminmenu li.menu-top > a { border-radius: 14px; margin: 6px 8px
 .block-editor-inserter__preview-container .block-editor-block-card__title, .block-editor-inserter__preview-container .block-editor-block-card__name { color: #fff !important; }
 .block-editor-inserter__preview-container .block-editor-block-card__description { color: #A9A6C9 !important; }
 .block-editor-inserter__preview-container .block-editor-block-icon { color: #C084FC !important; fill: #C084FC !important; }
+/* Lateral: sem branco ao passar o mouse */
+.interface-complementary-area .components-panel__body-title, .interface-complementary-area .components-panel__body-toggle.components-button { background: transparent !important; border-radius: 17px; }
+.interface-complementary-area .components-panel__body.is-opened > .components-panel__body-title, .interface-complementary-area .components-panel__body.is-opened > .components-panel__body-title .components-panel__body-toggle { border-radius: 17px 17px 0 0; }
+.interface-complementary-area .components-panel__body-title:hover, .interface-complementary-area .components-panel__body-toggle.components-button:hover, .interface-complementary-area .components-panel__body-toggle.components-button:focus { background: rgba(180,92,240,.18) !important; color: #fff !important; box-shadow: none !important; }
+.interface-complementary-area .components-panel__body-toggle.components-button:hover .components-panel__arrow { color: #fff !important; }
+.interface-complementary-area .editor-post-card-panel .components-button:hover, .interface-complementary-area .editor-post-panel__row .components-button:hover, .interface-complementary-area .editor-sidebar__panel-tabs [role=tab]:hover { background: rgba(255,255,255,.08) !important; color: #fff !important; }
 /* Painel "Pronto para publicar?" */
 .ce-stats { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12.5px; color: #A9A6C9; margin: 2px 0 12px; }
 .ce-stats b { color: #fff; }
