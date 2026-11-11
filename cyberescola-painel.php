@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Cyber Escola Painel
  * Description: Visual neon da Cyber Escola na tela de login, no painel e no editor do WordPress.
- * Version: 1.1.1
+ * Version: 1.2.0
  * Author: Cyber Escola
  * Requires at least: 6.4
  * Requires PHP: 7.4
@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'CE_PAINEL_VERSION', '1.1.1' );
+define( 'CE_PAINEL_VERSION', '1.2.0' );
 define( 'CE_PAINEL_URL', plugin_dir_url( __FILE__ ) );
 
 /* O tema Cyber Escola Neon vem junto com este plugin */
@@ -130,6 +130,42 @@ function ce_painel_extra( $which ) {
 			} else if ( ++ceTries > 400 ) { ceStop(); }
 		} catch ( e ) {}
 	} );
+	/* Botão "Imagem" na barra de cima */
+	function ceImagens() {
+		if ( ! window.wp.media ) { return; }
+		var frame = wp.media( { title: 'Inserir imagens', button: { text: 'Inserir no texto' }, library: { type: 'image' }, multiple: true } );
+		frame.on( 'select', function () {
+			var blocks = frame.state().get( 'selection' ).toJSON().map( function ( a ) {
+				var big = a.sizes && a.sizes.large;
+				return wp.blocks.createBlock( 'core/image', { id: a.id, url: big ? big.url : a.url, alt: a.alt || '', sizeSlug: big ? 'large' : 'full', linkDestination: 'none' } );
+			} );
+			if ( ! blocks.length ) { return; }
+			var be = wp.data.select( 'core/block-editor' );
+			var bd = wp.data.dispatch( 'core/block-editor' );
+			var sel = be.getSelectedBlock();
+			if ( sel && wp.blocks.isUnmodifiedDefaultBlock && wp.blocks.isUnmodifiedDefaultBlock( sel ) ) {
+				bd.replaceBlocks( sel.clientId, blocks );
+			} else if ( sel ) {
+				bd.insertBlocks( blocks, be.getBlockIndex( sel.clientId ) + 1, be.getBlockRootClientId( sel.clientId ) || undefined );
+			} else {
+				bd.insertBlocks( blocks );
+			}
+		} );
+		frame.open();
+	}
+	function ceBotaoImagem() {
+		if ( document.querySelector( '.ce-btn-imagem' ) ) { return; }
+		var alvo = document.querySelector( '.editor-document-tools__left' ) || document.querySelector( '.edit-post-header-toolbar__left' );
+		if ( ! alvo ) { return; }
+		var b = document.createElement( 'button' );
+		b.type = 'button';
+		b.className = 'components-button ce-btn-imagem';
+		b.title = 'Inserir imagem (envie do computador ou escolha da biblioteca)';
+		b.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="9" cy="10" r="1.8" fill="currentColor"/><path d="M4.5 18l5-5 3.5 3.5 2.5-2.5 4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg><span>Imagem</span>';
+		b.addEventListener( 'click', ceImagens );
+		alvo.insertBefore( b, alvo.children[ 1 ] || null );
+	}
+	setInterval( ceBotaoImagem, 1000 );
 	if ( ! Panel ) { return; }
 	function Pronto() {
 		var d = wp.data.useSelect( function ( select ) {
@@ -195,6 +231,12 @@ body.ce-editor #adminmenu li.menu-top > a { border-radius: 14px; margin: 6px 8px
 .block-editor-inserter__search .components-input-control__container, .components-search-control .components-input-control__container { background: rgba(255,255,255,.06) !important; border-radius: 10px; }
 .block-editor-inserter__search input[type=search], .components-search-control input[type=search] { background: transparent !important; color: #fff !important; }
 .ce-pronto .components-panel__body-toggle.components-button { font-size: 13px !important; }
+.editor-header .components-button.ce-btn-imagem {
+	height: 40px; padding: 0 14px 0 11px; margin: 0 4px; gap: 7px; border-radius: 12px; font-weight: 600; font-size: 13.5px; color: #fff;
+	background: linear-gradient(135deg, rgba(31,193,214,.22), rgba(180,92,240,.28)); border: 1px solid rgba(31,193,214,.45); box-shadow: 0 8px 20px -10px rgba(31,193,214,.7);
+}
+.editor-header .components-button.ce-btn-imagem:hover { color: #fff; border-color: #1FC1D6; background: linear-gradient(135deg, rgba(31,193,214,.35), rgba(180,92,240,.4)); }
+.media-modal { border-radius: 18px; overflow: hidden; }
 /* Lateral em cartões */
 .interface-complementary-area .components-panel { padding: 6px 0 20px; }
 .interface-complementary-area .components-panel__body {
