@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Cyber Escola Painel
  * Description: Visual neon da Cyber Escola na tela de login, no painel e no editor do WordPress.
- * Version: 1.0.1
+ * Version: 1.1.0
  * Author: Cyber Escola
  * Requires at least: 6.4
  * Requires PHP: 7.4
@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'CE_PAINEL_VERSION', '1.0.1' );
+define( 'CE_PAINEL_VERSION', '1.1.0' );
 define( 'CE_PAINEL_URL', plugin_dir_url( __FILE__ ) );
 
 /* O tema Cyber Escola Neon vem junto com este plugin */
@@ -93,6 +93,208 @@ add_filter( 'block_editor_settings_all', function ( $settings ) {
 	$settings['styles'][] = array( 'css' => '@import url(' . ce_painel_fonts() . ');' . ce_painel_css( 'editor-content' ) );
 	return $settings;
 } );
+
+/* ---------- Editor no estilo do modelo (v1.1) ---------- */
+add_action( 'enqueue_block_editor_assets', function () {
+	wp_add_inline_style( 'ce-painel-editor', ce_painel_extra( 'ui' ) );
+	wp_add_inline_script( 'wp-edit-post', ce_painel_extra( 'js' ) );
+}, 20 );
+add_filter( 'block_editor_settings_all', function ( $settings ) {
+	$settings['styles'][] = array( 'css' => ce_painel_extra( 'content' ) );
+	return $settings;
+}, 20 );
+/* Menu lateral recolhido (só ícones) quando estiver escrevendo */
+add_filter( 'admin_body_class', function ( $classes ) {
+	$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+	if ( $screen && method_exists( $screen, 'is_block_editor' ) && $screen->is_block_editor() ) {
+		$classes .= ' folded ce-editor';
+	}
+	return $classes;
+} );
+
+function ce_painel_extra( $which ) {
+	switch ( $which ) {
+		case 'js':
+			return <<<'JS'
+( function ( wp ) {
+	if ( ! wp || ! wp.plugins || ! wp.data || ! wp.element ) { return; }
+	var el = wp.element.createElement;
+	var Panel = ( wp.editor && wp.editor.PluginDocumentSettingPanel ) || ( wp.editPost && wp.editPost.PluginDocumentSettingPanel );
+	wp.domReady( function () {
+		try {
+			var prefs = wp.data.select( 'core/preferences' );
+			if ( prefs && prefs.get( 'core/edit-post', 'fullscreenMode' ) ) {
+				wp.data.dispatch( 'core/preferences' ).set( 'core/edit-post', 'fullscreenMode', false );
+			}
+		} catch ( e ) {}
+	} );
+	if ( ! Panel ) { return; }
+	function Pronto() {
+		var d = wp.data.useSelect( function ( select ) {
+			var ed = select( 'core/editor' );
+			return {
+				title: ed.getEditedPostAttribute( 'title' ) || '',
+				excerpt: ed.getEditedPostAttribute( 'excerpt' ) || '',
+				media: ed.getEditedPostAttribute( 'featured_media' ),
+				cats: ed.getEditedPostAttribute( 'categories' ) || [],
+				content: ed.getEditedPostContent() || ''
+			};
+		}, [] );
+		var text = d.content.replace( /<!--[\s\S]*?-->/g, ' ' ).replace( /<[^>]+>/g, ' ' );
+		var words = ( text.match( /\S+/g ) || [] ).length;
+		var mins = Math.max( 1, Math.ceil( words / 200 ) );
+		var imgs = ( d.content.match( /<img\s/g ) || [] ).length;
+		var noAlt = ( d.content.match( /<img(?![^>]*alt="[^"]+")[^>]*>/g ) || [] ).length;
+		var heads = ( d.content.match( /<h[2-4][\s>]/g ) || [] ).length;
+		var items = [
+			[ 'Título preenchido', d.title.trim().length > 0 ],
+			[ 'Resumo preenchido', d.excerpt.trim().length > 0 ],
+			[ 'Imagem de destaque', !! d.media ],
+			[ 'Categoria escolhida', d.cats.filter( function ( c ) { return c !== 1; } ).length > 0 ],
+			[ 'Texto alternativo nas imagens', imgs === 0 || noAlt === 0 ],
+			[ 'Link para o e-book', /cyberescola\.com\/?["#?]/.test( d.content ) ]
+		];
+		var done = items.filter( function ( i ) { return i[ 1 ]; } ).length;
+		return el( Panel, { name: 'ce-pronto', title: 'Pronto para publicar? ' + done + ' de ' + items.length, className: 'ce-pronto' },
+			el( 'div', { className: 'ce-stats' },
+				el( 'span', null, el( 'b', null, words ), ' palavras' ),
+				el( 'span', null, el( 'b', null, mins + ' min' ), ' de leitura' ),
+				el( 'span', null, el( 'b', null, heads ), ' títulos' ),
+				el( 'span', null, el( 'b', null, imgs ), ' imagens' )
+			),
+			el( 'ul', { className: 'ce-check' }, items.map( function ( i, k ) {
+				return el( 'li', { key: k, className: i[ 1 ] ? 'ok' : 'todo' }, i[ 0 ] );
+			} ) )
+		);
+	}
+	wp.plugins.registerPlugin( 'ce-pronto', { render: Pronto } );
+} )( window.wp );
+JS;
+		case 'ui':
+			return <<<'CSS'
+body.ce-editor, body.ce-editor #wpwrap, body.ce-editor #wpcontent, body.ce-editor #wpbody { background: #0B0A1A; }
+body.ce-editor #adminmenu .wp-menu-image::before { font-size: 20px; }
+body.ce-editor #adminmenu li.menu-top > a { border-radius: 14px; margin: 6px 8px; }
+.editor-header, .edit-post-header { min-height: 72px; padding-right: 12px; }
+.editor-header .components-button.has-icon:not(.editor-post-publish-button):not(.editor-post-publish-panel__toggle):not(.is-primary) {
+	border: 1px solid rgba(255,255,255,.12); border-radius: 12px; background: rgba(255,255,255,.04); margin: 0 3px; min-width: 40px; height: 40px;
+}
+.editor-header .editor-post-preview, .editor-header .editor-preview-dropdown__toggle, .editor-header .editor-post-save-draft, .editor-header .editor-post-saved-state {
+	border: 1px solid rgba(255,255,255,.14) !important; border-radius: 12px !important; color: #EDEBFF !important; height: 40px; padding: 0 14px !important; box-shadow: none !important;
+}
+.editor-header .editor-post-saved-state { color: #B9F08F !important; border-color: rgba(140,224,90,.3) !important; background: rgba(140,224,90,.1); }
+.editor-header .editor-post-publish-button, .editor-header .editor-post-publish-panel__toggle {
+	height: 44px !important; padding: 0 24px !important; border-radius: 13px !important; font-family: 'Poppins', sans-serif !important; font-size: 15px !important;
+}
+.editor-document-bar { border-radius: 12px !important; border: 1px solid rgba(255,255,255,.12) !important; min-height: 40px; }
+.editor-document-bar__title, .editor-document-bar .components-button { font-family: 'Inter', sans-serif; }
+/* Lateral em cartões */
+.interface-complementary-area .components-panel { padding: 6px 0 20px; }
+.interface-complementary-area .components-panel__body {
+	margin: 12px 14px !important; border: 1px solid rgba(255,255,255,.12) !important; border-radius: 18px;
+	background: linear-gradient(160deg, rgba(255,255,255,.08), rgba(255,255,255,.025)) !important; box-shadow: 0 16px 34px -18px rgba(0,0,0,.8);
+}
+.interface-complementary-area .components-panel__body-toggle.components-button { font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 14px; }
+.interface-complementary-area .components-panel__body.is-opened > .components-panel__body-title { border-bottom: 0; }
+.editor-sidebar__panel-tabs, .interface-complementary-area .components-tab-panel__tabs { margin: 12px 14px 0; padding: 4px; border-radius: 12px; background: rgba(255,255,255,.05) !important; border: 0 !important; }
+.editor-sidebar__panel-tabs [role=tab], .interface-complementary-area .components-tab-panel__tabs-item { border-radius: 9px; height: 36px; font-weight: 600; }
+.editor-sidebar__panel-tabs [role=tab][aria-selected=true], .interface-complementary-area .components-tab-panel__tabs-item.is-active { background: rgba(255,255,255,.12); box-shadow: none !important; }
+.editor-sidebar__panel-tabs [role=tab]::after, .interface-complementary-area .components-tab-panel__tabs-item::after { display: none; }
+.interface-complementary-area .editor-post-card-panel { margin: 12px 14px; padding: 16px; border-radius: 18px; border: 1px solid rgba(255,255,255,.12); background: rgba(255,255,255,.04); }
+.interface-complementary-area .editor-post-card-panel__title, .interface-complementary-area .editor-post-card-panel__title-name { color: #fff !important; font-family: 'Poppins', sans-serif; }
+.interface-complementary-area .editor-post-featured-image__toggle, .interface-complementary-area .editor-post-featured-image__preview { border-radius: 14px; background: rgba(255,255,255,.05); color: #CFCDEA; }
+.interface-complementary-area .components-form-token-field__token { border-radius: 999px; overflow: hidden; }
+.interface-complementary-area .components-form-token-field__token-text, .interface-complementary-area .components-form-token-field__remove-token { background: rgba(240,33,138,.25) !important; color: #fff !important; }
+.interface-complementary-area .components-checkbox-control__input[type=checkbox] { background: rgba(10,9,24,.65); border-color: rgba(255,255,255,.3); }
+.interface-complementary-area .components-checkbox-control__input[type=checkbox]:checked { background: #B45CF0; border-color: #B45CF0; }
+/* Painel "Pronto para publicar?" */
+.ce-stats { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12.5px; color: #A9A6C9; margin: 2px 0 12px; }
+.ce-stats b { color: #fff; }
+.ce-check { margin: 0; padding: 0; list-style: none; }
+.ce-check li { display: flex; gap: 10px; align-items: center; font-size: 13px; color: #CFCDEA; padding: 5px 0; margin: 0; }
+.ce-check li::before { content: "✓"; width: 18px; height: 18px; border-radius: 50%; flex: none; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: #0B0A1A; background: #8CE05A; }
+.ce-check li.todo { color: #FFB991; }
+.ce-check li.todo::before { content: ""; background: transparent; border: 2px solid #FF8A4C; width: 14px; height: 14px; }
+/* Barra de formatação dos blocos */
+.block-editor-block-contextual-toolbar, .block-editor-block-toolbar, .block-editor-block-contextual-toolbar.is-fixed {
+	background: rgba(20,17,42,.96) !important; border: 1px solid rgba(255,255,255,.14) !important; border-radius: 14px !important; box-shadow: 0 20px 50px rgba(0,0,0,.5) !important; overflow: hidden;
+}
+.block-editor-block-toolbar .components-button, .block-editor-block-contextual-toolbar .components-button { color: #CFCDEA !important; }
+.block-editor-block-toolbar .components-button:hover { color: #fff !important; }
+.block-editor-block-toolbar .components-button.is-pressed, .block-editor-block-toolbar .components-button.is-pressed:hover { background: rgba(180,92,240,.28) !important; color: #fff !important; }
+.block-editor-block-toolbar .components-toolbar-group, .block-editor-block-toolbar .components-toolbar, .block-editor-block-toolbar__block-controls { border-color: rgba(255,255,255,.12) !important; background: transparent !important; }
+.block-editor-block-toolbar .block-editor-block-parent-selector { background: transparent; }
+/* Janelas, menus e inserção de blocos */
+.components-popover__content, .components-dropdown__content .components-popover__content, .block-editor-inserter__popover .components-popover__content {
+	background: #14112A !important; color: #EDEBFF; border: 1px solid rgba(255,255,255,.14) !important; border-radius: 16px !important; box-shadow: 0 30px 70px rgba(0,0,0,.7) !important; outline: none !important;
+}
+.components-popover__content .components-menu-item__button, .components-popover__content .components-button.components-menu-item__button { color: #CFCDEA; }
+.components-popover__content .components-menu-item__button:hover { color: #fff; background: rgba(180,92,240,.18); }
+.components-popover__content .components-menu-group + .components-menu-group { border-color: rgba(255,255,255,.1); }
+.components-popover__content .components-menu-group__label, .block-editor-inserter__panel-title { color: #8F8BAE !important; letter-spacing: .12em; }
+.block-editor-inserter__quick-inserter, .block-editor-inserter__menu, .block-editor-inserter__main-area, .block-editor-tabbed-sidebar { background: #14112A !important; }
+.block-editor-block-types-list__item { border-radius: 12px !important; border: 1px solid rgba(255,255,255,.08) !important; background: rgba(255,255,255,.04) !important; margin: 4px !important; padding: 12px 6px !important; }
+.block-editor-block-types-list__item:hover, .block-editor-block-types-list__item:focus { background: rgba(180,92,240,.2) !important; border-color: rgba(192,132,252,.5) !important; }
+.block-editor-block-types-list__item-title { color: #EDEBFF !important; font-weight: 600; }
+.components-search-control input[type=search], .block-editor-inserter__search input { background: rgba(255,255,255,.06) !important; color: #fff !important; border-radius: 10px !important; }
+.block-editor-inserter__toggle.components-button.has-icon, .editor-document-tools__inserter-toggle.components-button.has-icon {
+	background: linear-gradient(135deg, #FF8A4C, #F0218A 55%, #B45CF0) !important; color: #fff !important; border: 0 !important; border-radius: 11px !important; box-shadow: 0 8px 20px -6px rgba(240,33,138,.6);
+}
+.block-editor-button-block-appender, .block-editor-default-block-appender .block-editor-inserter__toggle { color: #fff !important; }
+/* Rodapé de blocos e caixas extras */
+.interface-interface-skeleton__footer, .block-editor-block-breadcrumb { background: #0F0D22 !important; border-color: rgba(255,255,255,.08) !important; color: #A9A6C9; }
+.block-editor-block-breadcrumb__button { color: #CFCDEA !important; }
+.edit-post-layout__metaboxes, .edit-post-meta-boxes-area, .edit-post-meta-boxes-main, .editor-meta-boxes-area, .edit-post-meta-boxes-main__presenter, .edit-post-meta-boxes-main__liner {
+	background: #100E24 !important; color: #CFCDEA !important; border-color: rgba(255,255,255,.08) !important;
+}
+.edit-post-meta-boxes-main__presenter button, .edit-post-meta-boxes-main__presenter { color: #CFCDEA !important; }
+.edit-post-meta-boxes-area .postbox, .edit-post-layout__metaboxes .postbox { background: #14112A !important; border-color: rgba(255,255,255,.1) !important; color: #CFCDEA; }
+.edit-post-meta-boxes-area .postbox .hndle, .edit-post-meta-boxes-area .postbox h2 { color: #fff !important; }
+/* Janela de boas-vindas */
+.components-modal__frame { background: #14112A; color: #EDEBFF; border: 1px solid rgba(255,255,255,.14); border-radius: 22px; }
+.components-modal__header { background: #14112A; border-color: rgba(255,255,255,.08); }
+.components-modal__header-heading, .edit-post-welcome-guide__heading, .components-guide__heading { color: #fff !important; font-family: 'Poppins', sans-serif; }
+.components-guide__page, .edit-post-welcome-guide__text, .editor-welcome-guide__text { color: #CFCDEA; }
+CSS;
+		case 'content':
+			return <<<'CSS'
+.editor-styles-wrapper {
+	background:
+		radial-gradient(700px 500px at 0% 0%, rgba(180,92,240,.28), transparent 60%),
+		radial-gradient(600px 500px at 100% 100%, rgba(31,193,214,.14), transparent 60%),
+		#0B0A1A !important;
+	padding: 36px 24px 90px !important;
+	min-height: 100vh;
+}
+.editor-styles-wrapper .edit-post-visual-editor__post-title-wrapper,
+.editor-styles-wrapper .editor-visual-editor__post-title-wrapper {
+	max-width: 900px; margin: 0 auto !important; padding: 44px 52px 6px !important; box-sizing: border-box;
+	background: linear-gradient(160deg, rgba(255,255,255,.08), rgba(255,255,255,.03)); border: 1px solid rgba(255,255,255,.12); border-bottom: 0; border-radius: 26px 26px 0 0;
+}
+.editor-styles-wrapper .is-root-container.block-editor-block-list__layout,
+.editor-styles-wrapper > .is-root-container,
+.editor-styles-wrapper .wp-block-post-content.is-root-container {
+	max-width: 900px; margin: 0 auto !important; padding: 10px 52px 48px !important; box-sizing: border-box;
+	background: linear-gradient(160deg, rgba(255,255,255,.05), rgba(255,255,255,.02)); border: 1px solid rgba(255,255,255,.12); border-top: 0; border-radius: 0 0 26px 26px;
+	box-shadow: 0 30px 70px -16px rgba(0,0,0,.6);
+}
+.editor-styles-wrapper .is-root-container > * { max-width: 100%; }
+.editor-styles-wrapper .wp-block-post-title, .editor-styles-wrapper .editor-post-title__input { font-size: 44px !important; line-height: 1.12 !important; letter-spacing: -1.2px !important; margin: 0 !important; }
+.editor-styles-wrapper h2 { font-size: 28px; font-weight: 700; margin-top: 1.4em; }
+.editor-styles-wrapper h3 { font-size: 22px; font-weight: 700; }
+.editor-styles-wrapper p { color: #CFCDEA; }
+.editor-styles-wrapper [data-rich-text-placeholder]::after, .editor-styles-wrapper .block-editor-default-block-appender__content { color: #8F8BAE !important; opacity: 1 !important; }
+.editor-styles-wrapper .wp-block-post-title [data-rich-text-placeholder]::after { color: rgba(255,255,255,.35) !important; }
+.editor-styles-wrapper .block-editor-block-list__block.is-selected:not(.is-root-container)::after,
+.editor-styles-wrapper .block-editor-block-list__block.is-highlighted::after { box-shadow: 0 0 0 2px #B45CF0 !important; border-radius: 10px; outline: none !important; }
+.editor-styles-wrapper .wp-block-image img, .editor-styles-wrapper .wp-block-cover { border-radius: 18px; }
+.editor-styles-wrapper .wp-block-file { padding: 16px 18px; border-radius: 16px; border: 1px dashed rgba(240,33,138,.5); background: rgba(240,33,138,.08); }
+.editor-styles-wrapper .wp-block-file .wp-block-file__button { background: linear-gradient(90deg,#FF8A4C,#F0218A,#B45CF0) !important; border-radius: 12px; color: #fff; }
+.editor-styles-wrapper table td, .editor-styles-wrapper table th { border-color: rgba(255,255,255,.14); }
+CSS;
+	}
+	return '';
+}
 
 function ce_painel_css( $which ) {
 	switch ( $which ) {
