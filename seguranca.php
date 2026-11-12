@@ -82,3 +82,20 @@ function ce_cabecalhos_seguranca() {
 add_action( 'send_headers', 'ce_cabecalhos_seguranca' );
 add_action( 'admin_init', 'ce_cabecalhos_seguranca' );
 add_action( 'login_init', 'ce_cabecalhos_seguranca' );
+
+/* Ícone da aba (favicon) igual ao da página de vendas */
+function ce_favicon_tags() {
+	$base = 'https://cyberescola.com/';
+	echo '<link rel="icon" href="' . esc_url( $base . 'favicon.ico' ) . '" sizes="any">' . "\n";
+	echo '<link rel="icon" type="image/png" sizes="32x32" href="' . esc_url( $base . 'favicon-32.png' ) . '">' . "\n";
+	echo '<link rel="icon" type="image/png" sizes="192x192" href="' . esc_url( $base . 'favicon-192.png' ) . '">' . "\n";
+	echo '<link rel="apple-touch-icon" href="' . esc_url( $base . 'apple-touch-icon.png' ) . '">' . "\n";
+	echo '<meta name="theme-color" content="#120E28">' . "\n";
+}
+add_action( 'wp_head', 'ce_favicon_tags', 2 );
+add_action( 'admin_head', 'ce_favicon_tags', 2 );
+add_action( 'login_head', 'ce_favicon_tags', 2 );
+add_action( 'do_faviconico', function () {
+	wp_redirect( 'https://cyberescola.com/favicon.ico', 301 );
+	exit;
+} );
