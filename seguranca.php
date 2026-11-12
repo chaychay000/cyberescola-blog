@@ -99,3 +99,42 @@ add_action( 'do_faviconico', function () {
 	wp_redirect( 'https://cyberescola.com/favicon.ico', 301 );
 	exit;
 } );
+
+/* Imagem padrão quando o link do blog é compartilhado (WhatsApp, Facebook etc.) */
+function ce_og_imagem() {
+	return 'https://blog.cyberescola.com/wp-content/uploads/2026/11/cyberescola-compartilhar.jpg';
+}
+foreach ( array( 'facebook', 'twitter' ) as $ce_rede ) {
+	add_filter( "rank_math/opengraph/{$ce_rede}/image", 'ce_og_imagem', 99 );
+	add_filter( "rank_math/opengraph/{$ce_rede}/image_array", function ( $img ) {
+		if ( is_array( $img ) && isset( $img['url'] ) && ce_og_imagem() === $img['url'] ) {
+			$img['width']  = 400;
+			$img['height'] = 400;
+			$img['type']   = 'image/jpeg';
+			$img['alt']    = 'Cyber Escola';
+		}
+		return $img;
+	}, 99 );
+}
+add_filter( 'rank_math/opengraph/twitter/twitter_card', function () {
+	return 'summary';
+}, 99 );
+
+/* Sem comentários no blog */
+add_filter( 'comments_open', '__return_false', 99 );
+add_filter( 'pings_open', '__return_false', 99 );
+add_filter( 'comments_array', '__return_empty_array', 99 );
+add_filter( 'get_comments_number', '__return_zero', 99 );
+add_action( 'init', function () {
+	foreach ( array( 'post', 'page' ) as $tipo ) {
+		remove_post_type_support( $tipo, 'comments' );
+		remove_post_type_support( $tipo, 'trackbacks' );
+	}
+}, 100 );
+add_action( 'admin_menu', function () {
+	remove_menu_page( 'edit-comments.php' );
+}, 99 );
+add_action( 'admin_bar_menu', function ( $bar ) {
+	$bar->remove_node( 'comments' );
+}, 999 );
+add_filter( 'feed_links_show_comments_feed', '__return_false' );
