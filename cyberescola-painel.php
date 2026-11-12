@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Cyber Escola Painel
  * Description: Visual neon da Cyber Escola na tela de login, no painel e no editor do WordPress.
- * Version: 1.9.3
+ * Version: 1.9.4
  * Author: Cyber Escola
  * Requires at least: 6.4
  * Requires PHP: 7.4
@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'CE_PAINEL_VERSION', '1.9.3' );
+define( 'CE_PAINEL_VERSION', '1.9.4' );
 require_once __DIR__ . '/autora.php';
 require_once __DIR__ . '/fontes.php';
 require_once __DIR__ . '/seguranca.php';
@@ -509,6 +509,25 @@ body.ce-sem-selecao .block-editor-block-list__block-popover:has(.block-editor-bl
 .ce-bloco-panel .block-editor-block-inspector { background: transparent !important; }
 .ce-bloco-panel .block-editor-block-inspector .components-panel__body { margin: 10px 0 !important; box-shadow: none; }
 .ce-bloco-panel.is-opened > .components-panel__body-title + * { padding: 0; }
+/* Varredura: tirar o branco de botões, painel de publicar, links e padrões */
+.editor-header .components-button.is-secondary, .editor-header .components-button.is-tertiary, .editor-header a.components-button.is-secondary { background: rgba(255,255,255,.04) !important; color: #EDEBFF !important; box-shadow: inset 0 0 0 1px rgba(255,255,255,.18) !important; border-radius: 12px !important; }
+.editor-header .components-button.is-secondary:hover, .editor-header .components-button.is-tertiary:hover { background: rgba(255,255,255,.1) !important; color: #fff !important; }
+.block-editor-inserter__category-panel, .block-editor-inserter__patterns-category-panel, .block-editor-inserter__category-panel .block-editor-inserter__patterns-category-panel-header, .block-editor-block-patterns-explorer, .block-editor-block-patterns-explorer__sidebar, .block-editor-block-patterns-explorer__list { background: #14112A !important; border-color: rgba(255,255,255,.08) !important; color: #EDEBFF !important; }
+.block-editor-inserter__category-panel .components-heading, .block-editor-inserter__category-panel .components-text, .block-editor-block-patterns-explorer .components-heading { color: #EDEBFF !important; }
+.block-editor-link-control, .block-editor-link-control__search-item, .block-editor-link-control__search-item-title, .block-editor-link-control__tools, .block-editor-link-control__settings { color: #EDEBFF !important; background: transparent !important; border-color: rgba(255,255,255,.1) !important; }
+.block-editor-link-control__search-item-info, .block-editor-link-control__search-item-details { color: #A9A6C9 !important; }
+.block-editor-link-control__search-item.is-selected, .block-editor-link-control__search-item:hover { background: rgba(180,92,240,.2) !important; }
+.block-editor-link-control .components-input-control__container, .block-editor-link-control input[type=text], .block-editor-link-control input[type=url], .block-editor-url-input input, .block-editor-url-input__input { background: rgba(10,9,24,.6) !important; color: #fff !important; border-color: rgba(255,255,255,.2) !important; }
+.editor-post-publish-panel, .editor-post-publish-panel__header, .editor-post-publish-panel__content, .editor-post-publish-panel__prepublish, .editor-post-publish-panel__footer, .editor-post-publish-panel .components-panel__body, .editor-post-publish-panel .components-panel__body.is-opened, .post-publish-panel__postpublish, .post-publish-panel__postpublish-header { background: #14112A !important; color: #EDEBFF !important; border-color: rgba(255,255,255,.1) !important; }
+.editor-post-publish-panel p, .editor-post-publish-panel strong, .editor-post-publish-panel h2, .editor-post-publish-panel label, .editor-post-publish-panel .components-site-name, .editor-post-publish-panel .components-checkbox-control__label, .editor-post-publish-panel .components-panel__body-toggle, .editor-post-publish-panel .components-panel__body-toggle span, .post-publish-panel__postpublish-header a { color: #EDEBFF !important; }
+.editor-post-publish-panel .components-site-home, .editor-post-publish-panel .components-site-card span:not(.components-site-name) { color: #A9A6C9 !important; }
+.editor-post-publish-panel .editor-post-publish-panel__link, .editor-post-publish-panel a { color: #C084FC !important; }
+.editor-post-publish-panel .components-site-card, .editor-post-publish-panel .components-site-icon { background: rgba(255,255,255,.05) !important; border-radius: 12px; }
+.editor-post-publish-panel .components-button.is-secondary, .editor-post-publish-panel .editor-post-publish-panel__header-cancel-button .components-button { background: rgba(255,255,255,.05) !important; color: #EDEBFF !important; box-shadow: inset 0 0 0 1px rgba(255,255,255,.18) !important; }
+.editor-post-publish-panel .components-panel__body-toggle:hover { background: rgba(180,92,240,.18) !important; }
+.editor-post-publish-panel input, .post-publish-panel__postpublish input { background: rgba(10,9,24,.6) !important; color: #fff !important; border-color: rgba(255,255,255,.2) !important; }
+.components-form-toggle__input { background: transparent !important; }
+.block-editor-warning { background: #FFF6FB !important; }
 /* Painel "Pronto para publicar?" */
 .ce-stats { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12.5px; color: #A9A6C9; margin: 2px 0 12px; }
 .ce-stats b { color: #fff; }
@@ -618,6 +637,7 @@ CSS;
 .editor-styles-wrapper .is-root-container strong, .editor-styles-wrapper .is-root-container b, .editor-styles-wrapper .is-root-container em, .editor-styles-wrapper .is-root-container i, .editor-styles-wrapper .is-root-container u, .editor-styles-wrapper .is-root-container s, .editor-styles-wrapper .is-root-container sup, .editor-styles-wrapper .is-root-container sub, .editor-styles-wrapper .wp-block-post-title strong, .editor-styles-wrapper .wp-block-post-title em { color: inherit !important; }
 .editor-styles-wrapper .is-root-container strong, .editor-styles-wrapper .is-root-container b { font-weight: 800; }
 .editor-styles-wrapper ::selection { background: rgba(180,92,240,.28); color: inherit; }
+.editor-styles-wrapper mark.has-inline-color[style*="background-color"]:not([style*=";color"]):not([style*="; color"]):not([style^="color"]) { color: #1A1433 !important; }
 CSS;
 	}
 	return '';
