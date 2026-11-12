@@ -89,7 +89,7 @@ add_action( 'customize_register', function ( $wp_customize ) {
 		'ce_hero_title'  => array( 'Título do blog', 'Teatro na escola, sem complicação', 'sanitize_text_field', 'text' ),
 		'ce_hero_text'   => array( 'Texto abaixo do título', 'Ideias, jogos teatrais e dicas de planejamento para professores de Arte e Teatro.', 'sanitize_text_field', 'textarea' ),
 		'ce_author_name' => array( 'Nome da autora', 'Ana Reis', 'sanitize_text_field', 'text' ),
-		'ce_author_bio'  => array( 'Texto da autora', 'Atriz, diretora e professora de Teatro. Escreve sobre Teatro e Educação.', 'sanitize_text_field', 'textarea' ),
+		'ce_author_bio'  => array( 'Texto da autora', "Artista, educadora e designer educacional\nEscreve sobre Arte, Educação e Teatro.", 'sanitize_textarea_field', 'textarea' ),
 		'ce_author_drt'  => array( 'Registro (DRT)', 'DRT 0011405/MG', 'sanitize_text_field', 'text' ),
 	);
 	foreach ( $fields as $id => $f ) {
@@ -249,6 +249,14 @@ function ce_footer() { ?>
 </body>
 </html>
 <?php }
+function ce_author_bio() {
+	$novo = "Artista, educadora e designer educacional\nEscreve sobre Arte, Educação e Teatro.";
+	$bio  = (string) ce_opt( 'ce_author_bio', $novo );
+	if ( '' === trim( $bio ) || false !== strpos( $bio, 'Atriz, diretora e professora de Teatro' ) ) {
+		$bio = $novo;
+	}
+	return $bio;
+}
 function ce_author_card( $class = '' ) {
 	$photo_id = (int) ce_opt( 'ce_author_photo', 0 );
 	if ( ! $photo_id ) {
@@ -260,7 +268,7 @@ function ce_author_card( $class = '' ) {
 	<section class="glass box author-box <?php echo esc_attr( $class ); ?>">
 		<div class="author-photo"><img src="<?php echo esc_url( $photo ); ?>" alt="<?php echo esc_attr( ce_opt( 'ce_author_name', 'Ana Reis' ) ); ?>" loading="lazy"></div>
 		<h3><?php echo esc_html( ce_opt( 'ce_author_name', 'Ana Reis' ) ); ?></h3>
-		<p><?php echo esc_html( ce_opt( 'ce_author_bio', 'Atriz, diretora e professora de Teatro. Escreve sobre Teatro e Educação.' ) ); ?></p>
+		<p><?php echo nl2br( esc_html( ce_author_bio() ) ); // phpcs:ignore ?></p>
 		<?php if ( ce_opt( 'ce_author_drt', 'DRT 0011405/MG' ) ) : ?><span class="drt"><?php echo esc_html( ce_opt( 'ce_author_drt', 'DRT 0011405/MG' ) ); ?></span><?php endif; ?>
 	</section>
 	<?php
