@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Cyber Escola Painel
  * Description: Visual neon da Cyber Escola na tela de login, no painel e no editor do WordPress.
- * Version: 1.9.2
+ * Version: 1.9.3
  * Author: Cyber Escola
  * Requires at least: 6.4
  * Requires PHP: 7.4
@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'CE_PAINEL_VERSION', '1.9.2' );
+define( 'CE_PAINEL_VERSION', '1.9.3' );
 require_once __DIR__ . '/autora.php';
 require_once __DIR__ . '/fontes.php';
 require_once __DIR__ . '/seguranca.php';
@@ -615,6 +615,9 @@ CSS;
 .editor-styles-wrapper .is-root-container blockquote { color: #3A3556 !important; border-color: #B45CF0 !important; }
 .editor-styles-wrapper .is-root-container table td, .editor-styles-wrapper .is-root-container table th { border-color: #E3DFF0 !important; }
 .editor-styles-wrapper .is-root-container hr, .editor-styles-wrapper .is-root-container .wp-block-separator { border-color: #E3DFF0 !important; color: #E3DFF0 !important; }
+.editor-styles-wrapper .is-root-container strong, .editor-styles-wrapper .is-root-container b, .editor-styles-wrapper .is-root-container em, .editor-styles-wrapper .is-root-container i, .editor-styles-wrapper .is-root-container u, .editor-styles-wrapper .is-root-container s, .editor-styles-wrapper .is-root-container sup, .editor-styles-wrapper .is-root-container sub, .editor-styles-wrapper .wp-block-post-title strong, .editor-styles-wrapper .wp-block-post-title em { color: inherit !important; }
+.editor-styles-wrapper .is-root-container strong, .editor-styles-wrapper .is-root-container b { font-weight: 800; }
+.editor-styles-wrapper ::selection { background: rgba(180,92,240,.28); color: inherit; }
 CSS;
 	}
 	return '';
