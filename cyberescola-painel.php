@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Cyber Escola Painel
  * Description: Visual neon da Cyber Escola na tela de login, no painel e no editor do WordPress.
- * Version: 2.0.2
+ * Version: 2.0.3
  * Author: Cyber Escola
  * Requires at least: 6.4
  * Requires PHP: 7.4
@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'CE_PAINEL_VERSION', '2.0.2' );
+define( 'CE_PAINEL_VERSION', '2.0.3' );
 require_once __DIR__ . '/autora.php';
 require_once __DIR__ . '/fontes.php';
 require_once __DIR__ . '/seguranca.php';
@@ -426,6 +426,21 @@ function ce_painel_extra( $which ) {
 		wp.data.subscribe( desenhar );
 		setInterval( desenhar, 800 );
 	} )();
+	/* Celular: abre a aba Configurações como no computador */
+	( function () {
+		if ( window.innerWidth >= 782 ) { return; }
+		var feito = false, n = 0, stop;
+		stop = wp.data.subscribe( function () {
+			if ( feito ) { return; }
+			var i = wp.data.select( 'core/interface' ), ed = wp.data.select( 'core/editor' );
+			if ( ! i || ! ed || ! ed.getCurrentPostId() || ++n < 5 ) { return; }
+			feito = true;
+			setTimeout( function () {
+				if ( ! i.getActiveComplementaryArea( 'core' ) ) { wp.data.dispatch( 'core/interface' ).enableComplementaryArea( 'core', 'edit-post/document' ); }
+			}, 700 );
+			if ( stop ) { stop(); }
+		} );
+	} )();
 	if ( ! Panel ) { return; }
 	/* Uma aba só: as opções do bloco aparecem dentro da aba do artigo */
 	( function () {
@@ -656,6 +671,18 @@ body.ce-sem-selecao .block-editor-block-list__block-popover:has(.block-editor-bl
 .components-popover .components-menu-group { border-color: rgba(255,255,255,.1) !important; }
 .components-popover__content legend, .components-popover__content label, .components-popover__content h2, .components-popover__content h3, .components-popover__content p, .components-popover__content .components-text, .components-popover__content .components-heading, .components-popover__content .components-base-control__label, .components-popover__content .components-color-palette__custom-color-name, .components-popover__content .block-editor-duotone-control__description { color: #EDEBFF !important; }
 .components-popover__content .components-base-control__help, .components-popover__content .components-color-palette__custom-color-value { color: #A9A6C9 !important; }
+/* Celular: barra de cima numa linha só e aba Configurações embaixo do texto, como no computador */
+@media (max-width: 781px) {
+	.editor-header, .edit-post-header { display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important; align-items: center !important; justify-content: flex-start !important; overflow-x: auto !important; overflow-y: hidden !important; min-height: 60px !important; height: 60px !important; padding: 0 8px !important; gap: 6px !important; scrollbar-width: none; }
+	.editor-header::-webkit-scrollbar { display: none; }
+	.editor-header__toolbar, .editor-header__settings, .editor-header .editor-document-tools, .editor-header .editor-document-tools__left { flex: 0 0 auto !important; width: auto !important; max-width: none !important; flex-wrap: nowrap !important; gap: 6px !important; padding: 0 !important; margin: 0 !important; }
+	.editor-header .store-setup-button-container { display: none !important; }
+	.editor-header .editor-post-publish-button, .editor-header .editor-post-publish-panel__toggle { padding: 0 16px !important; min-width: 0 !important; height: 40px !important; }
+	.interface-interface-skeleton__body { display: flex !important; flex-direction: column !important; }
+	.interface-interface-skeleton__content { flex: 1 1 45% !important; min-height: 0 !important; }
+	.interface-interface-skeleton__sidebar { position: relative !important; inset: auto !important; flex: 0 0 55% !important; height: 55% !important; max-height: 55% !important; width: 100% !important; overflow: auto !important; border-left: 0 !important; border-top: 1px solid rgba(192,132,252,.45) !important; border-radius: 18px 18px 0 0; box-shadow: 0 -18px 40px rgba(0,0,0,.55); }
+	.interface-interface-skeleton__sidebar .interface-complementary-area, .interface-interface-skeleton__sidebar .editor-sidebar { width: 100% !important; }
+}
 /* Painel "Pronto para publicar?" */
 .ce-stats { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12.5px; color: #A9A6C9; margin: 2px 0 12px; }
 .ce-stats b { color: #fff; }
@@ -775,6 +802,15 @@ CSS;
 .editor-styles-wrapper .ce-capa-acoes button { background: rgba(18,14,40,.82); color: #fff; border: 1px solid rgba(255,255,255,.25); border-radius: 10px; padding: 8px 14px; font-size: 13px; font-weight: 700; cursor: pointer; }
 .editor-styles-wrapper .ce-capa-acoes button:hover { background: linear-gradient(90deg,#FF8A4C,#F0218A,#B45CF0); border-color: transparent; }
 .editor-styles-wrapper mark.has-inline-color[style*="background-color"]:not([style*=";color"]):not([style*="; color"]):not([style^="color"]) { color: #1A1433 !important; }
+@media (max-width: 600px) {
+	html .editor-styles-wrapper { padding: 14px 8px 70px !important; }
+	html .editor-styles-wrapper .edit-post-visual-editor__post-title-wrapper, html .editor-styles-wrapper .editor-visual-editor__post-title-wrapper { padding: 30px 18px 4px !important; border-radius: 20px 20px 0 0 !important; }
+	html .editor-styles-wrapper .is-root-container.block-editor-block-list__layout, html .editor-styles-wrapper > .is-root-container, html .editor-styles-wrapper .wp-block-post-content.is-root-container { padding: 8px 18px 32px !important; border-radius: 0 0 20px 20px !important; }
+	html .editor-styles-wrapper .wp-block-post-title, html .editor-styles-wrapper .editor-post-title__input { font-size: 30px !important; letter-spacing: -.6px !important; }
+	html .editor-styles-wrapper .ce-capa { margin-bottom: 18px; }
+	html .editor-styles-wrapper .ce-capa-add { padding: 18px 12px; font-size: 14px; }
+	html .editor-styles-wrapper .ce-capa-img { height: 190px; }
+}
 CSS;
 	}
 	return '';
