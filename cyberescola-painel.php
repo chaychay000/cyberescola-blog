@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Cyber Escola Painel
  * Description: Visual neon da Cyber Escola na tela de login, no painel e no editor do WordPress.
- * Version: 2.0.4
+ * Version: 2.0.5
  * Author: Cyber Escola
  * Requires at least: 6.4
  * Requires PHP: 7.4
@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'CE_PAINEL_VERSION', '2.0.4' );
+define( 'CE_PAINEL_VERSION', '2.0.5' );
 require_once __DIR__ . '/autora.php';
 require_once __DIR__ . '/fontes.php';
 require_once __DIR__ . '/seguranca.php';
@@ -208,6 +208,13 @@ function ce_painel_extra( $which ) {
 			if ( ! be || ! be.getSelectionStart ) { return; }
 			var s = be.getSelectionStart(), e = be.getSelectionEnd();
 			var esconder = !! ( s && s.attributeKey && e && s.clientId === e.clientId && s.offset === e.offset );
+			/* No celular: em blocos de texto, a barra só aparece com texto marcado (dois toques ou arrastar) */
+			if ( ! esconder && window.innerWidth < 782 ) {
+				var id = be.getSelectedBlockClientId();
+				var faixa = !! ( s && e && s.attributeKey && ( s.clientId !== e.clientId || s.offset !== e.offset ) );
+				var TXT = [ 'core/paragraph', 'core/heading', 'core/list', 'core/list-item', 'core/quote', 'core/pullquote', 'core/preformatted', 'core/verse', 'core/details' ];
+				if ( id && ! faixa && TXT.indexOf( be.getBlockName( id ) ) > -1 ) { esconder = true; }
+			}
 			if ( esconder !== ultimo ) {
 				ultimo = esconder;
 				document.body.classList.toggle( 'ce-sem-selecao', esconder );
@@ -674,9 +681,18 @@ body.ce-sem-selecao .block-editor-block-list__block-popover:has(.block-editor-bl
 .components-popover__content .components-base-control__help, .components-popover__content .components-color-palette__custom-color-value { color: #A9A6C9 !important; }
 /* Celular: barra de cima numa linha só e aba Configurações embaixo do texto, como no computador */
 @media (max-width: 781px) {
-	.editor-header, .edit-post-header { display: flex !important; flex-direction: row !important; flex-wrap: wrap !important; align-items: center !important; justify-content: space-between !important; overflow: visible !important; min-height: 60px !important; height: auto !important; padding: 8px !important; gap: 8px 6px !important; }
+	.editor-header, .edit-post-header { display: flex !important; flex-direction: row !important; flex-wrap: wrap !important; align-items: center !important; justify-content: center !important; overflow: visible !important; min-height: 60px !important; height: auto !important; padding: 8px !important; gap: 4px 6px !important; }
 	.interface-interface-skeleton__header { height: auto !important; }
-	.editor-header__settings { margin-left: auto !important; }
+	.editor-header__settings { display: contents !important; }
+	.editor-header__toolbar { order: 0 !important; }
+	.editor-header .editor-post-publish-button, .editor-header .editor-post-publish-panel__toggle { order: 1 !important; margin-left: auto !important; }
+	.editor-header::after { content: ""; order: 2; flex: 0 0 100%; height: 0; }
+	.editor-header__settings > * { order: 3; }
+	.editor-header .editor-header__post-preview-button, .editor-header .editor-post-preview, .editor-header .editor-preview-dropdown { order: 4 !important; }
+	.editor-header .editor-post-save-draft, .editor-header .editor-post-saved-state { order: 5 !important; width: 40px !important; min-width: 40px !important; height: 40px !important; padding: 0 !important; display: inline-flex !important; align-items: center !important; justify-content: center !important; }
+	.editor-header .editor-post-save-draft svg, .editor-header .editor-post-saved-state svg { margin: 0 !important; }
+	.editor-header .interface-pinned-items { order: 6 !important; }
+	.editor-header .editor-header__settings > .components-dropdown-menu { order: 7 !important; }
 	.interface-interface-skeleton__sidebar:empty { display: none !important; }
 	.editor-header__toolbar, .editor-header__settings, .editor-header .editor-document-tools, .editor-header .editor-document-tools__left { flex: 0 0 auto !important; width: auto !important; max-width: none !important; flex-wrap: nowrap !important; gap: 6px !important; padding: 0 !important; margin: 0 !important; }
 	.editor-header .store-setup-button-container { display: none !important; }
