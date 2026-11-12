@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Cyber Escola Painel
  * Description: Visual neon da Cyber Escola na tela de login, no painel e no editor do WordPress.
- * Version: 2.0.0
+ * Version: 2.0.1
  * Author: Cyber Escola
  * Requires at least: 6.4
  * Requires PHP: 7.4
@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'CE_PAINEL_VERSION', '2.0.0' );
+define( 'CE_PAINEL_VERSION', '2.0.1' );
 require_once __DIR__ . '/autora.php';
 require_once __DIR__ . '/fontes.php';
 require_once __DIR__ . '/seguranca.php';
@@ -584,6 +584,8 @@ body.ce-sem-selecao .block-editor-block-list__block-popover:has(.block-editor-bl
 .components-popover .components-dropdown-menu__menu-item.is-active svg, .components-popover [role^=menuitem][aria-checked=true] svg { fill: #fff !important; }
 .components-popover .components-menu-item__shortcut, .components-popover .components-menu-item__info { color: #8F8BAE !important; }
 .components-popover .components-menu-group { border-color: rgba(255,255,255,.1) !important; }
+.components-popover__content legend, .components-popover__content label, .components-popover__content h2, .components-popover__content h3, .components-popover__content p, .components-popover__content .components-text, .components-popover__content .components-heading, .components-popover__content .components-base-control__label, .components-popover__content .components-color-palette__custom-color-name, .components-popover__content .block-editor-duotone-control__description { color: #EDEBFF !important; }
+.components-popover__content .components-base-control__help, .components-popover__content .components-color-palette__custom-color-value { color: #A9A6C9 !important; }
 /* Painel "Pronto para publicar?" */
 .ce-stats { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12.5px; color: #A9A6C9; margin: 2px 0 12px; }
 .ce-stats b { color: #fff; }
