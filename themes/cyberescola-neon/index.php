@@ -23,6 +23,7 @@ while ( have_posts() ) :
 		<article <?php post_class( 'glass entry' ); ?>>
 			<h1><?php the_title(); ?></h1>
 			<div class="entry-content"><?php the_content(); ?></div>
+			<?php if ( is_page( 'sobre' ) ) { ce_author_card( 'author-fim' ); } ?>
 		</article>
 		<?php
 		if ( comments_open() || get_comments_number() ) {

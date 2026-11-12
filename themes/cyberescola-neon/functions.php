@@ -249,21 +249,25 @@ function ce_footer() { ?>
 </body>
 </html>
 <?php }
-function ce_sidebar() { ?><?php
-$photo_id = (int) ce_opt( 'ce_author_photo', 0 );
-if ( ! $photo_id ) {
-	$autoras = get_users( array( 'role' => 'ce_autora', 'number' => 1, 'meta_key' => 'ce_foto', 'fields' => 'ID' ) );
-	$photo_id = $autoras ? (int) get_user_meta( $autoras[0], 'ce_foto', true ) : 0;
-}
-$photo    = $photo_id ? wp_get_attachment_image_url( $photo_id, 'medium' ) : ce_img( 'ana-reis.jpg' );
-?>
-<aside class="sidebar" aria-label="Barra lateral">
-	<section class="glass box author-box">
+function ce_author_card( $class = '' ) {
+	$photo_id = (int) ce_opt( 'ce_author_photo', 0 );
+	if ( ! $photo_id ) {
+		$autoras  = get_users( array( 'role' => 'ce_autora', 'number' => 1, 'meta_key' => 'ce_foto', 'fields' => 'ID' ) );
+		$photo_id = $autoras ? (int) get_user_meta( $autoras[0], 'ce_foto', true ) : 0;
+	}
+	$photo = $photo_id ? wp_get_attachment_image_url( $photo_id, 'medium' ) : ce_img( 'ana-reis.jpg' );
+	?>
+	<section class="glass box author-box <?php echo esc_attr( $class ); ?>">
 		<div class="author-photo"><img src="<?php echo esc_url( $photo ); ?>" alt="<?php echo esc_attr( ce_opt( 'ce_author_name', 'Ana Reis' ) ); ?>" loading="lazy"></div>
 		<h3><?php echo esc_html( ce_opt( 'ce_author_name', 'Ana Reis' ) ); ?></h3>
 		<p><?php echo esc_html( ce_opt( 'ce_author_bio', 'Atriz, diretora e professora de Teatro. Escreve sobre Teatro e Educação.' ) ); ?></p>
 		<?php if ( ce_opt( 'ce_author_drt', 'DRT 0011405/MG' ) ) : ?><span class="drt"><?php echo esc_html( ce_opt( 'ce_author_drt', 'DRT 0011405/MG' ) ); ?></span><?php endif; ?>
 	</section>
+	<?php
+}
+function ce_sidebar() { ?>
+<aside class="sidebar" aria-label="Barra lateral">
+	<?php ce_author_card(); ?>
 	<section class="glass box promo">
 		<h3>50 Planos para uma Aula de Teatro</h3>
 		<p>E-book + videoaulas de aplicação</p>
