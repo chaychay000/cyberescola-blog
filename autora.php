@@ -205,6 +205,24 @@ add_action( 'enqueue_block_editor_assets', function () {
 	}
 }, 5 );
 
+/* Foto e nome da autora no topo do editor */
+add_action( 'admin_footer', function () {
+	if ( ! ce_e_autora() ) {
+		return;
+	}
+	$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+	if ( ! $screen || ! method_exists( $screen, 'is_block_editor' ) || ! $screen->is_block_editor() ) {
+		return;
+	}
+	$u    = wp_get_current_user();
+	$foto = get_avatar_url( $u->ID, array( 'size' => 96 ) );
+	echo '<a class="ce-autor-topo" href="' . esc_url( ce_autora_url() ) . '" title="Voltar para Meus artigos">';
+	if ( $foto ) {
+		echo '<img src="' . esc_url( $foto ) . '" alt="">';
+	}
+	echo '<span><b>' . esc_html( $u->display_name ) . '</b><small>Autora do blog</small></span></a>';
+} );
+
 /* "Sair" volta para a tela de entrada */
 add_filter( 'logout_redirect', function ( $to, $requested, $user ) {
 	if ( $user instanceof WP_User && ce_e_autora( $user ) ) {
@@ -334,6 +352,13 @@ body.ce-so-editor #wpadminbar, body.ce-so-editor #adminmenumain, body.ce-so-edit
 body.ce-so-editor #wpcontent, body.ce-so-editor #wpfooter { margin-left: 0 !important; padding-left: 0 !important; }
 body.ce-so-editor .editor-header .components-button[aria-label*="Setup"], body.ce-so-editor .editor-header a[href*="hostinger"] { display: none !important; }
 body.ce-so-editor { background: #0B0A1A; }
+body.ce-so-editor.block-editor-page .interface-interface-skeleton { top: 52px !important; }
+.ce-autor-topo { position: fixed; top: 0; left: 0; right: 0; height: 52px; z-index: 99999; display: flex; align-items: center; gap: 10px; padding: 0 22px; background: #0B0A1A; border-bottom: 1px solid rgba(255,255,255,.08); text-decoration: none !important; box-sizing: border-box; }
+.ce-autor-topo img { width: 34px; height: 34px; border-radius: 50%; object-fit: cover; padding: 2px; background: linear-gradient(135deg, #FF8A4C, #F0218A 50%, #B45CF0 75%, #1FC1D6); }
+.ce-autor-topo span { display: flex; flex-direction: column; line-height: 1.15; }
+.ce-autor-topo b { color: #fff; font-family: 'Poppins', sans-serif; font-size: 14px; }
+.ce-autor-topo small { color: #A9A6C9; font-size: 11.5px; }
+.ce-autor-topo:hover b { color: #F0218A; }
 .ce-a { max-width: 980px; margin: 0 auto; padding: 22px 20px 60px; font-family: 'Inter', system-ui, sans-serif; color: #EDEBFF; }
 .ce-a a { text-decoration: none; }
 .ce-a-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 18px; border: 1px solid rgba(255,255,255,.12); border-radius: 18px; background: rgba(255,255,255,.04); }
