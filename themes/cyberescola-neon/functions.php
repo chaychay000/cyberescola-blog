@@ -141,8 +141,6 @@ function ce_first_category_tag( $post = null ) {
 function ce_cover( $size = 'ce-card', $post = null ) {
 	if ( has_post_thumbnail( $post ) ) {
 		echo '<div class="cover">' . get_the_post_thumbnail( $post, $size, array( 'loading' => 'lazy' ) ) . '</div>';
-	} else {
-		echo '<div class="cover placeholder"><img src="' . esc_url( ce_img( 'caderno.png' ) ) . '" alt="" loading="lazy"></div>';
 	}
 }
 
@@ -289,8 +287,8 @@ $photo    = $photo_id ? wp_get_attachment_image_url( $photo_id, 'medium' ) : ce_
 </aside>
 <?php }
 function ce_card() { ?>
-<article <?php post_class( 'glass card' ); ?>>
-	<a href="<?php the_permalink(); ?>" tabindex="-1" aria-hidden="true"><?php ce_cover( 'ce-card' ); ?></a>
+<article <?php post_class( has_post_thumbnail() ? 'glass card' : 'glass card sem-capa' ); ?>>
+	<?php if ( has_post_thumbnail() ) : ?><a href="<?php the_permalink(); ?>" tabindex="-1" aria-hidden="true"><?php ce_cover( 'ce-card' ); ?></a><?php endif; ?>
 	<div class="card-body">
 		<div><?php echo ce_first_category_tag(); // phpcs:ignore ?></div>
 		<h3><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h3>

@@ -267,3 +267,7 @@ h1, h2, h3, h4, h5, h6 { font-family: var(--display); color: #fff; letter-spacin
 
 /* Texto justificado */
 .ce-justificado, .ce-justificado li { text-align: justify; }
+/* Artigos sem imagem de capa */
+.featured.sem-capa { grid-template-columns: 1fr; }
+.featured.sem-capa .featured-body { padding: 46px 52px; }
+.card.sem-capa .card-body { padding-top: 26px; }

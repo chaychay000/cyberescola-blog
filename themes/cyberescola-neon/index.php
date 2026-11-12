@@ -128,8 +128,8 @@ $is_front_list = ( is_home() && ! is_paged() );
 		if ( $is_front_list ) :
 			the_post();
 			?>
-			<article <?php post_class( 'glass featured' ); ?>>
-				<a href="<?php the_permalink(); ?>" tabindex="-1" aria-hidden="true" style="display:flex"><?php ce_cover( 'ce-wide' ); ?></a>
+			<article <?php post_class( has_post_thumbnail() ? 'glass featured' : 'glass featured sem-capa' ); ?>>
+				<?php if ( has_post_thumbnail() ) : ?><a href="<?php the_permalink(); ?>" tabindex="-1" aria-hidden="true" style="display:flex"><?php ce_cover( 'ce-wide' ); ?></a><?php endif; ?>
 				<div class="featured-body">
 					<span class="tag">Em destaque<?php $c = get_the_category(); echo $c ? ' · ' . esc_html( $c[0]->name ) : ''; ?></span>
 					<h2><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h2>
