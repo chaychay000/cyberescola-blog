@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Cyber Escola Painel
  * Description: Visual neon da Cyber Escola na tela de login, no painel e no editor do WordPress.
- * Version: 1.9.4
+ * Version: 1.9.5
  * Author: Cyber Escola
  * Requires at least: 6.4
  * Requires PHP: 7.4
@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'CE_PAINEL_VERSION', '1.9.4' );
+define( 'CE_PAINEL_VERSION', '1.9.5' );
 require_once __DIR__ . '/autora.php';
 require_once __DIR__ . '/fontes.php';
 require_once __DIR__ . '/seguranca.php';
@@ -528,6 +528,11 @@ body.ce-sem-selecao .block-editor-block-list__block-popover:has(.block-editor-bl
 .editor-post-publish-panel input, .post-publish-panel__postpublish input { background: rgba(10,9,24,.6) !important; color: #fff !important; border-color: rgba(255,255,255,.2) !important; }
 .components-form-toggle__input { background: transparent !important; }
 .block-editor-warning { background: #FFF6FB !important; }
+/* Lista de categorias (Padrões / Mídia) sem branco na opção escolhida */
+.block-editor-inserter__category-tablist [role=tab] { color: #CFCDEA !important; border-radius: 10px !important; background: transparent !important; }
+.block-editor-inserter__category-tablist [role=tab]:hover, .block-editor-inserter__category-tablist [role=tab][aria-selected=true], .block-editor-inserter__category-tablist [role=tab][data-active-item] { color: #fff !important; }
+.block-editor-inserter__category-tablist [role=tab]:hover { background: rgba(255,255,255,.06) !important; }
+.block-editor-inserter__category-tablist::before { background: linear-gradient(90deg, rgba(240,33,138,.35), rgba(180,92,240,.35)) !important; border-radius: 10px !important; }
 /* Painel "Pronto para publicar?" */
 .ce-stats { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12.5px; color: #A9A6C9; margin: 2px 0 12px; }
 .ce-stats b { color: #fff; }
