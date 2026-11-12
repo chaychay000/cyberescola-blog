@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Cyber Escola Painel
  * Description: Visual neon da Cyber Escola na tela de login, no painel e no editor do WordPress.
- * Version: 1.9.8
+ * Version: 2.0.0
  * Author: Cyber Escola
  * Requires at least: 6.4
  * Requires PHP: 7.4
@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'CE_PAINEL_VERSION', '1.9.8' );
+define( 'CE_PAINEL_VERSION', '2.0.0' );
 require_once __DIR__ . '/autora.php';
 require_once __DIR__ . '/fontes.php';
 require_once __DIR__ . '/seguranca.php';
@@ -293,7 +293,8 @@ function ce_painel_extra( $which ) {
 				el( 'div', { className: 'ce-fmt-linha' },
 					Botao( '⯇', 'Alinhar à esquerda', {}, function () { alinhar( props, 'left' ); } ),
 					Botao( '≡', 'Centralizar', {}, function () { alinhar( props, 'center' ); } ),
-					Botao( '⯈', 'Alinhar à direita', {}, function () { alinhar( props, 'right' ); } )
+					Botao( '⯈', 'Alinhar à direita', {}, function () { alinhar( props, 'right' ); } ),
+					Botao( '☰', 'Justificar', {}, function () { if ( window.ceToggleJust ) { window.ceToggleJust( props ); } } )
 				)
 			);
 		}
@@ -311,6 +312,49 @@ function ce_painel_extra( $which ) {
 			};
 		}, 'ceFormatacao' );
 		wp.hooks.addFilter( 'editor.BlockEdit', 'cyberescola/formatacao', comPainel );
+	} )();
+	/* Justificar texto (botão na barra do bloco) */
+	( function () {
+		if ( ! wp.blockEditor || ! wp.blockEditor.BlockControls || ! wp.components.ToolbarButton || ! wp.hooks ) { return; }
+		var el = wp.element.createElement;
+		var TIPOS = [ 'core/paragraph', 'core/heading', 'core/list', 'core/list-item', 'core/quote', 'core/pullquote', 'core/verse', 'core/details' ];
+		function temJust( cn ) { return ( ' ' + ( cn || '' ) + ' ' ).indexOf( ' ce-justificado ' ) > -1; }
+		function semJust( cn ) { var r = ( cn || '' ).split( /\s+/ ).filter( function ( c ) { return c && c !== 'ce-justificado'; } ).join( ' ' ); return r || undefined; }
+		function alinhado( a ) {
+			return a.textAlign || ( a.style && a.style.typography && a.style.typography.textAlign ) || ( [ 'left', 'center', 'right' ].indexOf( a.align ) > -1 ? a.align : null );
+		}
+		window.ceToggleJust = function ( props ) {
+			var a = props.attributes, upd = {};
+			if ( temJust( a.className ) ) {
+				upd.className = semJust( a.className );
+			} else {
+				upd.className = ( ( a.className || '' ) + ' ce-justificado' ).trim();
+				if ( [ 'left', 'center', 'right' ].indexOf( a.align ) > -1 ) { upd.align = undefined; }
+				if ( a.textAlign ) { upd.textAlign = undefined; }
+				if ( a.style && a.style.typography && a.style.typography.textAlign ) {
+					var st = JSON.parse( JSON.stringify( a.style ) );
+					delete st.typography.textAlign;
+					upd.style = st;
+				}
+			}
+			props.setAttributes( upd );
+		};
+		var icone = el( 'svg', { width: 24, height: 24, viewBox: '0 0 24 24', 'aria-hidden': true }, el( 'path', { d: 'M4 5.5h16V7H4zm0 4h16V11H4zm0 4h16V15H4zm0 4h16V19H4z', fill: 'currentColor' } ) );
+		wp.hooks.addFilter( 'editor.BlockEdit', 'cyberescola/justificar', wp.compose.createHigherOrderComponent( function ( BlockEdit ) {
+			return function ( props ) {
+				var just = temJust( props.attributes.className );
+				var al = alinhado( props.attributes );
+				wp.element.useEffect( function () {
+					if ( just && al ) { props.setAttributes( { className: semJust( props.attributes.className ) } ); }
+				}, [ al ] );
+				if ( ! props.isSelected || TIPOS.indexOf( props.name ) < 0 ) { return el( BlockEdit, props ); }
+				return el( wp.element.Fragment, null, el( BlockEdit, props ),
+					el( wp.blockEditor.BlockControls, { group: 'block' },
+						el( wp.components.ToolbarButton, { icon: icone, label: 'Justificar', isPressed: just, onClick: function () { window.ceToggleJust( props ); } } )
+					)
+				);
+			};
+		}, 'ceJustificar' ) );
 	} )();
 	if ( ! Panel ) { return; }
 	/* Uma aba só: as opções do bloco aparecem dentro da aba do artigo */
@@ -533,6 +577,13 @@ body.ce-sem-selecao .block-editor-block-list__block-popover:has(.block-editor-bl
 .block-editor-inserter__category-tablist [role=tab]:hover, .block-editor-inserter__category-tablist [role=tab][aria-selected=true], .block-editor-inserter__category-tablist [role=tab][data-active-item] { color: #fff !important; }
 .block-editor-inserter__category-tablist [role=tab]:hover { background: rgba(255,255,255,.06) !important; }
 .block-editor-inserter__category-tablist::before { background: linear-gradient(90deg, rgba(240,33,138,.35), rgba(180,92,240,.35)) !important; border-radius: 10px !important; }
+/* Menus suspensos (alinhar, mais, estilos, etc.) com letra clara */
+.components-popover .components-dropdown-menu__menu-item, .components-popover .components-menu-item__button, .components-popover [role=menuitem], .components-popover [role=menuitemradio], .components-popover [role=menuitemcheckbox], .components-popover [role=option], .components-popover .components-menu-item__item, .components-popover .components-truncate, .components-popover .block-editor-block-styles__item-text, .components-popover .block-editor-block-switcher__label, .components-popover .components-menu-group__label { color: #CFCDEA !important; }
+.components-popover .components-dropdown-menu__menu-item svg, .components-popover .components-menu-item__button svg, .components-popover [role^=menuitem] svg { fill: currentColor !important; color: inherit !important; }
+.components-popover .components-dropdown-menu__menu-item:hover, .components-popover .components-dropdown-menu__menu-item:focus, .components-popover .components-dropdown-menu__menu-item.is-active, .components-popover [role^=menuitem]:hover, .components-popover [role^=menuitem]:focus, .components-popover [role^=menuitem][aria-checked=true], .components-popover [role=option]:hover, .components-popover [role=option][aria-selected=true] { background: rgba(180,92,240,.28) !important; color: #fff !important; box-shadow: none !important; outline: none !important; }
+.components-popover .components-dropdown-menu__menu-item.is-active svg, .components-popover [role^=menuitem][aria-checked=true] svg { fill: #fff !important; }
+.components-popover .components-menu-item__shortcut, .components-popover .components-menu-item__info { color: #8F8BAE !important; }
+.components-popover .components-menu-group { border-color: rgba(255,255,255,.1) !important; }
 /* Painel "Pronto para publicar?" */
 .ce-stats { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12.5px; color: #A9A6C9; margin: 2px 0 12px; }
 .ce-stats b { color: #fff; }
@@ -642,6 +693,7 @@ CSS;
 .editor-styles-wrapper .is-root-container strong, .editor-styles-wrapper .is-root-container b, .editor-styles-wrapper .is-root-container em, .editor-styles-wrapper .is-root-container i, .editor-styles-wrapper .is-root-container u, .editor-styles-wrapper .is-root-container s, .editor-styles-wrapper .is-root-container sup, .editor-styles-wrapper .is-root-container sub, .editor-styles-wrapper .wp-block-post-title strong, .editor-styles-wrapper .wp-block-post-title em { color: inherit !important; }
 .editor-styles-wrapper .is-root-container strong, .editor-styles-wrapper .is-root-container b { font-weight: 800; }
 .editor-styles-wrapper ::selection { background: rgba(180,92,240,.28); color: inherit; }
+.editor-styles-wrapper .ce-justificado, .editor-styles-wrapper .ce-justificado li { text-align: justify !important; }
 .editor-styles-wrapper mark.has-inline-color[style*="background-color"]:not([style*=";color"]):not([style*="; color"]):not([style^="color"]) { color: #1A1433 !important; }
 CSS;
 	}
