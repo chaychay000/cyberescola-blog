@@ -317,3 +317,6 @@ h1, h2, h3, h4, h5, h6 { font-family: var(--display); color: #fff; letter-spacin
 	.ce-share-barra button { height: 42px; padding: 0 16px; border: 0; border-radius: 13px; background: var(--grad); color: #fff; font: 700 14px var(--display, 'Poppins'), sans-serif; display: inline-flex; align-items: center; gap: 7px; cursor: pointer; }
 	.ce-share-barra button svg { width: 18px; height: 18px; }
 }
+@media (max-width: 640px) {
+	.ce-share-grid .ce-sh-link { grid-column: span 2; flex-direction: row; gap: 8px; font-size: 13px; }
+}
