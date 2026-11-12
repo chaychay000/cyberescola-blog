@@ -168,7 +168,7 @@ add_action( 'admin_init', function () {
 	global $pagenow;
 	$page = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : '';
 	$type = isset( $_GET['post_type'] ) ? sanitize_key( wp_unslash( $_GET['post_type'] ) ) : 'post';
-	$ok   = in_array( $pagenow, array( 'post.php', 'profile.php', 'async-upload.php', 'media-upload.php' ), true )
+	$ok   = in_array( $pagenow, array( 'post.php', 'async-upload.php', 'media-upload.php' ), true )
 		|| ( 'post-new.php' === $pagenow && 'post' === $type )
 		|| ( 'admin.php' === $pagenow && 'ce-artigos' === $page );
 	if ( ! $ok ) {
@@ -261,7 +261,6 @@ function ce_autora_tela() {
 			<a class="ce-a-logo" href="<?php echo esc_url( ce_autora_url() ); ?>"><img src="https://cyberescola.com/img/ce3-logo.png" alt="Cyber Escola"></a>
 			<nav>
 				<a href="<?php echo esc_url( home_url( '/' ) ); ?>" target="_blank" rel="noopener">Ver o blog ↗</a>
-				<a href="<?php echo esc_url( admin_url( 'profile.php' ) ); ?>">Minha conta</a>
 				<a href="<?php echo esc_url( wp_logout_url() ); ?>">Sair</a>
 			</nav>
 		</header>
