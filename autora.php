@@ -12,7 +12,7 @@ define( 'CE_AUTORA_ROLE', 'ce_autora' );
 
 /* ---------- Cria / atualiza o perfil ---------- */
 add_action( 'init', function () {
-	if ( get_option( 'ce_autora_role_v' ) === '2' && get_role( CE_AUTORA_ROLE ) ) {
+	if ( get_option( 'ce_autora_role_v' ) === '3' && get_role( CE_AUTORA_ROLE ) ) {
 		return;
 	}
 	remove_role( CE_AUTORA_ROLE );
@@ -30,8 +30,9 @@ add_action( 'init', function () {
 		'manage_categories'      => true,
 		'edit_pages'             => true,
 		'edit_published_pages'   => true,
+		'publish_pages'          => true,
 	) );
-	update_option( 'ce_autora_role_v', '2' );
+	update_option( 'ce_autora_role_v', '3' );
 } );
 
 /* ---------- Foto do perfil (sem Gravatar) ---------- */
