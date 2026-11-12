@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Cyber Escola Painel
  * Description: Visual neon da Cyber Escola na tela de login, no painel e no editor do WordPress.
- * Version: 2.0.7
+ * Version: 2.0.8
  * Author: Cyber Escola
  * Requires at least: 6.4
  * Requires PHP: 7.4
@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'CE_PAINEL_VERSION', '2.0.7' );
+define( 'CE_PAINEL_VERSION', '2.0.8' );
 require_once __DIR__ . '/autora.php';
 require_once __DIR__ . '/fontes.php';
 require_once __DIR__ . '/seguranca.php';
@@ -301,7 +301,7 @@ function ce_painel_extra( $which ) {
 					Botao( '⯇', 'Alinhar à esquerda', {}, function () { alinhar( props, 'left' ); } ),
 					Botao( '≡', 'Centralizar', {}, function () { alinhar( props, 'center' ); } ),
 					Botao( '⯈', 'Alinhar à direita', {}, function () { alinhar( props, 'right' ); } ),
-					Botao( '☰', 'Justificar', {}, function () { if ( window.ceToggleJust ) { window.ceToggleJust( props ); } } )
+					Botao( '☰', 'Alinhamento Justificado utilizado para produções textuais que utilizam as regras da ABNT', {}, function () { if ( window.ceJustificarAuto ) { window.ceJustificarAuto(); } } )
 				)
 			);
 		}
@@ -320,32 +320,67 @@ function ce_painel_extra( $which ) {
 		}, 'ceFormatacao' );
 		wp.hooks.addFilter( 'editor.BlockEdit', 'cyberescola/formatacao', comPainel );
 	} )();
-	/* Justificar texto (botão na barra do bloco) */
+	/* Justificar (ABNT): sem texto marcado vale para o texto inteiro; com texto marcado vale para o que foi marcado */
 	( function () {
 		if ( ! wp.blockEditor || ! wp.blockEditor.BlockControls || ! wp.components.ToolbarButton || ! wp.hooks ) { return; }
 		var el = wp.element.createElement;
+		var DICA = 'Alinhamento Justificado utilizado para produções textuais que utilizam as regras da ABNT';
 		var TIPOS = [ 'core/paragraph', 'core/heading', 'core/list', 'core/list-item', 'core/quote', 'core/pullquote', 'core/verse', 'core/details' ];
 		function temJust( cn ) { return ( ' ' + ( cn || '' ) + ' ' ).indexOf( ' ce-justificado ' ) > -1; }
 		function semJust( cn ) { var r = ( cn || '' ).split( /\s+/ ).filter( function ( c ) { return c && c !== 'ce-justificado'; } ).join( ' ' ); return r || undefined; }
 		function alinhado( a ) {
 			return a.textAlign || ( a.style && a.style.typography && a.style.typography.textAlign ) || ( [ 'left', 'center', 'right' ].indexOf( a.align ) > -1 ? a.align : null );
 		}
-		window.ceToggleJust = function ( props ) {
-			var a = props.attributes, upd = {};
-			if ( temJust( a.className ) ) {
-				upd.className = semJust( a.className );
-			} else {
-				upd.className = ( ( a.className || '' ) + ' ce-justificado' ).trim();
-				if ( [ 'left', 'center', 'right' ].indexOf( a.align ) > -1 ) { upd.align = undefined; }
-				if ( a.textAlign ) { upd.textAlign = undefined; }
-				if ( a.style && a.style.typography && a.style.typography.textAlign ) {
-					var st = JSON.parse( JSON.stringify( a.style ) );
-					delete st.typography.textAlign;
-					upd.style = st;
-				}
+		function mudanca( a, ligar ) {
+			var upd = {};
+			if ( ! ligar ) { upd.className = semJust( a.className ); return upd; }
+			if ( ! temJust( a.className ) ) { upd.className = ( ( a.className || '' ) + ' ce-justificado' ).trim(); }
+			if ( [ 'left', 'center', 'right' ].indexOf( a.align ) > -1 ) { upd.align = undefined; }
+			if ( a.textAlign ) { upd.textAlign = undefined; }
+			if ( a.style && a.style.typography && a.style.typography.textAlign ) {
+				var st = JSON.parse( JSON.stringify( a.style ) );
+				delete st.typography.textAlign;
+				upd.style = st;
 			}
-			props.setAttributes( upd );
+			return upd;
+		}
+		/* Quais blocos recebem: os marcados ou, se nada estiver marcado, o texto inteiro */
+		function alvos() {
+			var be = wp.data.select( 'core/block-editor' );
+			var ids = be.getMultiSelectedBlockClientIds() || [];
+			if ( ! ids.length ) {
+				var s = be.getSelectionStart(), e = be.getSelectionEnd();
+				if ( s && e && s.clientId && s.attributeKey && ( s.clientId !== e.clientId || s.offset !== e.offset ) ) { ids = [ s.clientId ]; }
+			}
+			var inteiro = ! ids.length;
+			if ( inteiro ) {
+				ids = be.getClientIdsWithDescendants ? be.getClientIdsWithDescendants() : be.getBlockOrder();
+			} else {
+				var mais = [];
+				ids.forEach( function ( id ) { mais.push( id ); ( be.getClientIdsOfDescendants ? be.getClientIdsOfDescendants( [ id ] ) : [] ).forEach( function ( d ) { mais.push( d ); } ); } );
+				ids = mais;
+			}
+			ids = ids.filter( function ( id ) { return TIPOS.indexOf( be.getBlockName( id ) ) > -1; } );
+			return { ids: ids, inteiro: inteiro };
+		}
+		window.ceJustificarAuto = function () {
+			var be = wp.data.select( 'core/block-editor' ), bd = wp.data.dispatch( 'core/block-editor' );
+			var a = alvos();
+			if ( ! a.ids.length ) { return; }
+			var ligar = ! a.ids.every( function ( id ) { return temJust( be.getBlockAttributes( id ).className ); } );
+			a.ids.forEach( function ( id ) { bd.updateBlockAttributes( id, mudanca( be.getBlockAttributes( id ), ligar ) ); } );
+			try {
+				wp.data.dispatch( 'core/notices' ).createNotice( 'info', ( ligar ? 'Justificado (ABNT): ' : 'Justificado removido: ' ) + ( a.inteiro ? 'texto inteiro' : 'texto marcado' ), { type: 'snackbar', id: 'ce-just', isDismissible: true } );
+			} catch ( e ) {}
 		};
+		window.ceToggleJust = function () { window.ceJustificarAuto(); };
+		window.ceJustDica = DICA;
+		function botaoAtivo() {
+			try {
+				var a = alvos(), be = wp.data.select( 'core/block-editor' );
+				return a.ids.length > 0 && a.ids.every( function ( id ) { return temJust( be.getBlockAttributes( id ).className ); } );
+			} catch ( e ) { return false; }
+		}
 		var icone = el( 'svg', { width: 24, height: 24, viewBox: '0 0 24 24', 'aria-hidden': true }, el( 'path', { d: 'M4 5.5h16V7H4zm0 4h16V11H4zm0 4h16V15H4zm0 4h16V19H4z', fill: 'currentColor' } ) );
 		wp.hooks.addFilter( 'editor.BlockEdit', 'cyberescola/justificar', wp.compose.createHigherOrderComponent( function ( BlockEdit ) {
 			return function ( props ) {
@@ -357,11 +392,31 @@ function ce_painel_extra( $which ) {
 				if ( ! props.isSelected || TIPOS.indexOf( props.name ) < 0 ) { return el( BlockEdit, props ); }
 				return el( wp.element.Fragment, null, el( BlockEdit, props ),
 					el( wp.blockEditor.BlockControls, { group: 'block' },
-						el( wp.components.ToolbarButton, { icon: icone, label: 'Justificar', isPressed: just, onClick: function () { window.ceToggleJust( props ); } } )
+						el( wp.components.ToolbarButton, { icon: icone, label: DICA, isPressed: just, onMouseDown: function ( ev ) { ev.preventDefault(); }, onClick: function () { window.ceJustificarAuto(); } } )
 					)
 				);
 			};
 		}, 'ceJustificar' ) );
+		/* Botão fixo na barra de cima: nunca some, nem com texto marcado */
+		function botaoTopo() {
+			var b = document.querySelector( '.ce-btn-just' );
+			if ( ! b ) {
+				var img = document.querySelector( '.ce-btn-imagem' );
+				if ( ! img ) { return; }
+				b = document.createElement( 'button' );
+				b.type = 'button';
+				b.className = 'components-button ce-btn-just';
+				b.title = DICA;
+				b.setAttribute( 'aria-label', DICA );
+				b.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 5.5h16V7H4zm0 4h16V11H4zm0 4h16V15H4zm0 4h16V19H4z" fill="currentColor"/></svg><span>Justificar</span><small>ABNT</small>';
+				b.addEventListener( 'mousedown', function ( ev ) { ev.preventDefault(); } );
+				b.addEventListener( 'click', function () { window.ceJustificarAuto(); } );
+				img.parentNode.insertBefore( b, img.nextSibling );
+			}
+			var on = botaoAtivo();
+			if ( b.classList.contains( 'is-on' ) !== on ) { b.classList.toggle( 'is-on', on ); b.setAttribute( 'aria-pressed', on ? 'true' : 'false' ); }
+		}
+		setInterval( botaoTopo, 700 );
 	} )();
 	/* Imagem de capa em cima do título */
 	( function () {
@@ -545,6 +600,15 @@ body.ce-editor #adminmenu li.menu-top > a { border-radius: 14px; margin: 6px 8px
 	background: linear-gradient(135deg, rgba(31,193,214,.22), rgba(180,92,240,.28)); border: 1px solid rgba(31,193,214,.45); box-shadow: 0 8px 20px -10px rgba(31,193,214,.7);
 }
 .editor-header .components-button.ce-btn-imagem:hover { color: #fff; border-color: #1FC1D6; background: linear-gradient(135deg, rgba(31,193,214,.35), rgba(180,92,240,.4)); }
+.editor-header .components-button.ce-btn-just {
+	height: 40px; padding: 0 12px 0 10px; margin: 0 4px; gap: 6px; border-radius: 12px; font-weight: 600; font-size: 13.5px; color: #EDEBFF;
+	background: rgba(255,255,255,.05); border: 1px solid rgba(192,132,252,.45);
+}
+.editor-header .components-button.ce-btn-just small { font-size: 10px; font-weight: 800; letter-spacing: .04em; padding: 2px 6px; border-radius: 6px; background: rgba(192,132,252,.22); color: #E9D5FF; }
+.editor-header .components-button.ce-btn-just:hover { color: #fff; border-color: #C084FC; background: rgba(180,92,240,.22); }
+.editor-header .components-button.ce-btn-just.is-on { color: #fff; border-color: transparent; background: linear-gradient(135deg, #F0218A, #B45CF0); box-shadow: 0 8px 20px -10px rgba(240,33,138,.8); }
+.editor-header .components-button.ce-btn-just.is-on small { background: rgba(255,255,255,.25); color: #fff; }
+@media (max-width: 781px) { .editor-header .components-button.ce-btn-just span { display: none; } .editor-header .components-button.ce-btn-imagem span { display: none; } }
 .media-modal { border-radius: 18px; overflow: hidden; }
 /* Lateral em cartões */
 .interface-complementary-area .components-panel { padding: 6px 0 20px; }
