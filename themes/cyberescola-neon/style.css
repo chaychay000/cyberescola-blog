@@ -264,3 +264,6 @@ h1, h2, h3, h4, h5, h6 { font-family: var(--display); color: #fff; letter-spacin
 
 /* Marca-texto legível no tema escuro */
 .entry-content mark.has-inline-color[style*="background-color"]:not([style*=";color"]):not([style*="; color"]):not([style^="color"]) { color: #1A1433; border-radius: 4px; padding: 0 3px; }
+
+/* Texto justificado */
+.ce-justificado, .ce-justificado li { text-align: justify; }
