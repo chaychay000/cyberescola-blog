@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Cyber Escola Painel
  * Description: Visual neon da Cyber Escola na tela de login, no painel e no editor do WordPress.
- * Version: 2.0.1
+ * Version: 2.0.2
  * Author: Cyber Escola
  * Requires at least: 6.4
  * Requires PHP: 7.4
@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'CE_PAINEL_VERSION', '2.0.1' );
+define( 'CE_PAINEL_VERSION', '2.0.2' );
 require_once __DIR__ . '/autora.php';
 require_once __DIR__ . '/fontes.php';
 require_once __DIR__ . '/seguranca.php';
@@ -356,6 +356,76 @@ function ce_painel_extra( $which ) {
 			};
 		}, 'ceJustificar' ) );
 	} )();
+	/* Imagem de capa em cima do título */
+	( function () {
+		var frame;
+		function canvas() {
+			var fr = document.querySelector( 'iframe[name="editor-canvas"]' );
+			return ( fr && fr.contentDocument ) ? fr.contentDocument : document;
+		}
+		function abrir() {
+			if ( ! wp.media ) { return; }
+			if ( ! frame ) {
+				frame = wp.media( { title: 'Imagem de capa do artigo', library: { type: 'image' }, button: { text: 'Usar como capa' }, multiple: false } );
+				frame.on( 'select', function () {
+					var a = frame.state().get( 'selection' ).first();
+					if ( a ) { wp.data.dispatch( 'core/editor' ).editPost( { featured_media: a.id } ); }
+				} );
+			}
+			frame.open();
+		}
+		function botao( d, txt, acao, cls ) {
+			var b = d.createElement( 'button' );
+			b.type = 'button'; b.className = cls || ''; b.setAttribute( 'data-ce', acao ); b.textContent = txt;
+			return b;
+		}
+		function desenhar() {
+			var ed = wp.data.select( 'core/editor' );
+			if ( ! ed || ed.getCurrentPostType() !== 'post' ) { return; }
+			var d = canvas();
+			var w = d.querySelector( '.editor-visual-editor__post-title-wrapper, .edit-post-visual-editor__post-title-wrapper' );
+			if ( ! w ) { return; }
+			var box = w.querySelector( '.ce-capa' );
+			if ( ! box ) {
+				box = d.createElement( 'div' );
+				box.className = 'ce-capa';
+				box.setAttribute( 'contenteditable', 'false' );
+				w.insertBefore( box, w.firstChild );
+				box.addEventListener( 'click', function ( e ) {
+					var b = e.target.closest( '[data-ce]' );
+					if ( ! b ) { return; }
+					e.preventDefault(); e.stopPropagation();
+					if ( b.getAttribute( 'data-ce' ) === 'rem' ) { wp.data.dispatch( 'core/editor' ).editPost( { featured_media: 0 } ); } else { abrir(); }
+				} );
+			}
+			var id = ed.getEditedPostAttribute( 'featured_media' ) || 0, url = '';
+			if ( id ) {
+				var m = wp.data.select( 'core' ).getMedia( id );
+				if ( m ) {
+					var s = m.media_details && m.media_details.sizes;
+					url = ( s && ( ( s.large && s.large.source_url ) || ( s.full && s.full.source_url ) ) ) || m.source_url || '';
+				}
+			}
+			var k = id + '|' + url;
+			if ( box.getAttribute( 'data-k' ) === k ) { return; }
+			box.setAttribute( 'data-k', k );
+			box.textContent = '';
+			if ( ! id ) {
+				box.appendChild( botao( d, '＋  Adicionar imagem de capa', 'add', 'ce-capa-add' ) );
+			} else if ( ! url ) {
+				var l = d.createElement( 'div' ); l.className = 'ce-capa-load'; l.textContent = 'Carregando capa…'; box.appendChild( l );
+			} else {
+				var im = d.createElement( 'div' ); im.className = 'ce-capa-img';
+				im.style.backgroundImage = 'url("' + encodeURI( url ) + '")';
+				var ac = d.createElement( 'div' ); ac.className = 'ce-capa-acoes';
+				ac.appendChild( botao( d, 'Trocar capa', 'add' ) );
+				ac.appendChild( botao( d, 'Remover', 'rem' ) );
+				im.appendChild( ac ); box.appendChild( im );
+			}
+		}
+		wp.data.subscribe( desenhar );
+		setInterval( desenhar, 800 );
+	} )();
 	if ( ! Panel ) { return; }
 	/* Uma aba só: as opções do bloco aparecem dentro da aba do artigo */
 	( function () {
@@ -696,6 +766,14 @@ CSS;
 .editor-styles-wrapper .is-root-container strong, .editor-styles-wrapper .is-root-container b { font-weight: 800; }
 .editor-styles-wrapper ::selection { background: rgba(180,92,240,.28); color: inherit; }
 .editor-styles-wrapper .ce-justificado, .editor-styles-wrapper .ce-justificado li { text-align: justify !important; }
+.editor-styles-wrapper .ce-capa { margin: 0 0 24px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+.editor-styles-wrapper .ce-capa-add { width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 26px 18px; border: 2px dashed #D3C6F0; border-radius: 18px; background: #FAF7FF; color: #7A3FC4; font-size: 15px; font-weight: 700; cursor: pointer; transition: .15s; }
+.editor-styles-wrapper .ce-capa-add:hover { border-color: #B45CF0; background: #F3EAFF; color: #5B23A8; }
+.editor-styles-wrapper .ce-capa-load { padding: 26px; text-align: center; color: #9A95B5; border-radius: 18px; background: #F6F4FB; }
+.editor-styles-wrapper .ce-capa-img { position: relative; height: 300px; border-radius: 18px; background-size: cover; background-position: center; box-shadow: 0 12px 30px -14px rgba(26,20,51,.45); }
+.editor-styles-wrapper .ce-capa-acoes { position: absolute; right: 12px; bottom: 12px; display: flex; gap: 8px; }
+.editor-styles-wrapper .ce-capa-acoes button { background: rgba(18,14,40,.82); color: #fff; border: 1px solid rgba(255,255,255,.25); border-radius: 10px; padding: 8px 14px; font-size: 13px; font-weight: 700; cursor: pointer; }
+.editor-styles-wrapper .ce-capa-acoes button:hover { background: linear-gradient(90deg,#FF8A4C,#F0218A,#B45CF0); border-color: transparent; }
 .editor-styles-wrapper mark.has-inline-color[style*="background-color"]:not([style*=";color"]):not([style*="; color"]):not([style^="color"]) { color: #1A1433 !important; }
 CSS;
 	}
