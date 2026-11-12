@@ -44,7 +44,7 @@ add_action( 'after_setup_theme', function () {
 /* ---------- CSS e JS ---------- */
 add_action( 'wp_enqueue_scripts', function () {
 	wp_enqueue_style( 'ce-neon-fonts', 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap', array(), null );
-	wp_enqueue_style( 'ce-neon', get_stylesheet_uri(), array( 'ce-neon-fonts' ), CE_NEON_VERSION );
+	wp_enqueue_style( 'ce-neon', get_stylesheet_uri(), array( 'ce-neon-fonts' ), CE_NEON_VERSION . '.' . (int) @filemtime( get_stylesheet_directory() . '/style.css' ) );
 	if ( is_singular() && comments_open() && get_option( 'thread_comments' ) ) {
 		wp_enqueue_script( 'comment-reply' );
 	}
