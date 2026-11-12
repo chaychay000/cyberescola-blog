@@ -138,6 +138,28 @@ add_filter( 'show_admin_bar', function ( $show ) {
 	return ce_e_autora() ? false : $show;
 } );
 
+/* ---------- Logo depois de entrar, sempre abre "Meus artigos" ---------- */
+add_action( 'wp_login', function ( $login, $user ) {
+	if ( $user instanceof WP_User && ce_e_autora( $user ) ) {
+		update_user_meta( $user->ID, 'ce_ir_painel', 1 );
+	}
+}, 10, 2 );
+add_action( 'admin_init', function () {
+	if ( ! ce_e_autora() || wp_doing_ajax() ) {
+		return;
+	}
+	$uid = get_current_user_id();
+	if ( ! get_user_meta( $uid, 'ce_ir_painel', true ) ) {
+		return;
+	}
+	delete_user_meta( $uid, 'ce_ir_painel' );
+	$page = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : '';
+	if ( 'ce-artigos' !== $page ) {
+		wp_safe_redirect( ce_autora_url() );
+		exit;
+	}
+}, 1 );
+
 /* ---------- Só deixa abrir as telas permitidas ---------- */
 add_action( 'admin_init', function () {
 	if ( ! ce_e_autora() || wp_doing_ajax() ) {
@@ -227,10 +249,14 @@ function ce_autora_tela() {
 		</header>
 
 		<section class="ce-a-hero">
-			<div>
-				<span class="ce-a-kicker">ÁREA DA AUTORA</span>
-				<h1>Olá, <?php echo esc_html( $first ); ?>!</h1>
-				<p>O que vamos escrever hoje?</p>
+			<div class="ce-a-quem">
+				<?php $foto = get_avatar_url( $user->ID, array( 'size' => 192 ) ); ?>
+				<?php if ( $foto ) : ?><span class="ce-a-foto"><img src="<?php echo esc_url( $foto ); ?>" alt="<?php echo esc_attr( $user->display_name ); ?>"></span><?php endif; ?>
+				<div>
+					<span class="ce-a-kicker">ÁREA DA AUTORA</span>
+					<h1>Olá, <?php echo esc_html( $first ); ?>!</h1>
+					<p>O que vamos escrever hoje?</p>
+				</div>
 			</div>
 			<a class="ce-a-novo" href="<?php echo esc_url( admin_url( 'post-new.php' ) ); ?>">＋ Escrever novo artigo</a>
 		</section>
@@ -324,6 +350,10 @@ body.ce-so-editor { background: #0B0A1A; }
 	background: linear-gradient(90deg, #FF8A4C, #F0218A 55%, #B45CF0); box-shadow: 0 14px 30px -10px rgba(240,33,138,.7); }
 .ce-a-novo:hover { filter: brightness(1.08); }
 .ce-a-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.ce-a-quem { display: flex; align-items: center; gap: 22px; }
+.ce-a-foto { width: 96px; height: 96px; flex: none; border-radius: 50%; padding: 3px; background: linear-gradient(135deg, #FF8A4C, #F0218A 50%, #B45CF0 75%, #1FC1D6); box-shadow: 0 12px 30px -10px rgba(240,33,138,.6); }
+.ce-a-foto img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; background: #1A1733; }
+@media (max-width: 640px) { .ce-a-foto { width: 72px; height: 72px; } .ce-a-quem { gap: 14px; } }
 .ce-a-pagina { margin-top: 14px; display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; padding: 16px 18px; border-radius: 18px; border: 1px solid rgba(31,193,214,.35); background: linear-gradient(135deg, rgba(31,193,214,.12), rgba(180,92,240,.12)); }
 .ce-a-pagina b { display: block; color: #fff; font-family: 'Poppins', sans-serif; font-size: 18px; margin-top: 4px; }
 .ce-a-pagina small { color: #A9A6C9; font-size: 13px; }
