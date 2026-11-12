@@ -63,6 +63,7 @@ while ( have_posts() ) :
 						?>
 						<div class="post-tags"><?php foreach ( $tags as $t ) : ?><a href="<?php echo esc_url( get_tag_link( $t ) ); ?>">#<?php echo esc_html( $t->name ); ?></a><?php endforeach; ?></div>
 					<?php endif; ?>
+					<?php ce_share(); ?>
 				</article>
 				<?php
 				$prev = get_previous_post();

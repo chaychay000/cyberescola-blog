@@ -325,3 +325,96 @@ function ce_comments() {
 	comment_form( array( 'title_reply' => 'Deixe um comentário', 'label_submit' => 'Enviar comentário', 'class_submit' => 'submit btn-grad' ) );
 	echo '</section>';
 }
+
+/* Botões de compartilhar (só nos artigos do blog) */
+function ce_share_icon( $rede ) {
+	$i = array(
+		'whatsapp'  => '<path fill="#fff" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.6.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3a.4.4 0 0 0 0-.4l-.8-1.9c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.3 2.2 2.2 0 0 0 .2-1.3c-.1-.1-.3-.2-.5-.3Z"/>',
+		'facebook'  => '<path fill="#fff" d="M14 8.5V6.8c0-.8.5-1 .9-1H17V2.1L14 2c-3.3 0-4 2.5-4 4.1v2.4H8V12h2v10h4V12h2.7l.4-3.5H14Z"/>',
+		'telegram'  => '<path fill="#fff" d="M21.9 4.3 18.7 19.4c-.2 1-.9 1.3-1.8.8l-4.8-3.6-2.3 2.2c-.3.3-.5.5-1 .5l.3-4.9 9-8.1c.4-.3-.1-.5-.6-.2L6.4 13 1.6 11.5c-1-.3-1-1 .2-1.5L20.6 2.9c.9-.3 1.6.2 1.3 1.4Z"/>',
+		'x'         => '<path fill="#fff" d="M17.8 3h3.1l-6.8 7.7L22 21h-6.2l-4.9-6.4L5.3 21H2.2l7.2-8.3L1.8 3h6.4l4.4 5.8L17.8 3Zm-1.1 16.2h1.7L7.3 4.7H5.5l11.2 14.5Z"/>',
+		'linkedin'  => '<path fill="#fff" d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5ZM3 9h4v12H3V9Zm7 0h3.8v1.7h.1c.5-1 1.8-2 3.8-2 4 0 4.8 2.6 4.8 6V21h-4v-5.6c0-1.3 0-3-1.9-3s-2.1 1.4-2.1 2.9V21h-4V9Z"/>',
+		'pinterest' => '<path fill="#fff" d="M12 2a10 10 0 0 0-3.6 19.3c-.1-.8-.2-2 0-2.9l1.2-5s-.3-.6-.3-1.5c0-1.4.8-2.5 1.8-2.5.9 0 1.3.7 1.3 1.5 0 .9-.6 2.2-.9 3.4-.2 1 .5 1.9 1.6 1.9 1.9 0 3.3-2 3.3-4.9 0-2.5-1.8-4.3-4.4-4.3-3 0-4.8 2.3-4.8 4.6 0 .9.3 1.9.8 2.4.1.1.1.2.1.3l-.3 1.2c0 .2-.2.3-.4.2-1.4-.6-2.2-2.7-2.2-4.3 0-3.5 2.5-6.7 7.3-6.7 3.8 0 6.8 2.7 6.8 6.4 0 3.8-2.4 6.9-5.8 6.9-1.1 0-2.2-.6-2.6-1.3l-.7 2.7c-.3 1-1 2.2-1.4 2.9A10 10 0 1 0 12 2Z"/>',
+		'email'     => '<g fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></g>',
+		'link'      => '<g fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></g>',
+		'share'     => '<g fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7"/><path d="M16 6l-4-4-4 4"/><path d="M12 2v13"/></g>',
+	);
+	return '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' . ( isset( $i[ $rede ] ) ? $i[ $rede ] : '' ) . '</svg>';
+}
+function ce_share() {
+	if ( ! is_singular( 'post' ) ) {
+		return;
+	}
+	$url   = get_permalink();
+	$title = wp_strip_all_tags( get_the_title() );
+	$u     = rawurlencode( $url );
+	$t     = rawurlencode( $title );
+	$img   = has_post_thumbnail() ? rawurlencode( (string) get_the_post_thumbnail_url( null, 'large' ) ) : '';
+	$redes = array(
+		array( 'whatsapp', 'WhatsApp', 'https://api.whatsapp.com/send?text=' . rawurlencode( $title . ' ' . $url ) ),
+		array( 'facebook', 'Facebook', 'https://www.facebook.com/sharer/sharer.php?u=' . $u ),
+		array( 'telegram', 'Telegram', 'https://t.me/share/url?url=' . $u . '&text=' . $t ),
+		array( 'x', 'X', 'https://twitter.com/intent/tweet?url=' . $u . '&text=' . $t ),
+		array( 'linkedin', 'LinkedIn', 'https://www.linkedin.com/sharing/share-offsite/?url=' . $u ),
+		array( 'pinterest', 'Pinterest', 'https://pinterest.com/pin/create/button/?url=' . $u . '&description=' . $t . ( $img ? '&media=' . $img : '' ) ),
+		array( 'email', 'E-mail', 'mailto:?subject=' . $t . '&body=' . rawurlencode( $title . "\n\n" . $url ) ),
+	);
+	?>
+	<section class="ce-share" id="compartilhar" aria-label="Compartilhar este artigo">
+		<h3>Gostou? <span class="grad-text">Compartilhe com outros professores</span></h3>
+		<p>Ajude mais gente a levar o Teatro para a sala de aula.</p>
+		<div class="ce-share-grid">
+			<?php foreach ( $redes as $r ) : ?>
+				<a class="ce-sh ce-sh-<?php echo esc_attr( $r[0] ); ?>" href="<?php echo esc_url( $r[2] ); ?>" <?php echo 'email' === $r[0] ? '' : 'target="_blank" rel="noopener nofollow"'; ?> aria-label="Compartilhar no <?php echo esc_attr( $r[1] ); ?>"><?php echo ce_share_icon( $r[0] ); // phpcs:ignore ?><span><?php echo esc_html( $r[1] ); ?></span></a>
+			<?php endforeach; ?>
+			<button type="button" class="ce-sh ce-sh-link" data-url="<?php echo esc_url( $url ); ?>"><?php echo ce_share_icon( 'link' ); // phpcs:ignore ?><span>Copiar link</span></button>
+		</div>
+	</section>
+	<?php
+}
+add_action( 'wp_footer', function () {
+	if ( ! is_singular( 'post' ) ) {
+		return;
+	}
+	?>
+	<div class="ce-share-barra" aria-hidden="true">
+		<span>Gostou do artigo? <b>Compartilhe</b></span>
+		<button type="button" tabindex="-1" data-title="<?php echo esc_attr( wp_strip_all_tags( get_the_title() ) ); ?>" data-url="<?php echo esc_url( get_permalink() ); ?>"><?php echo ce_share_icon( 'share' ); // phpcs:ignore ?>Compartilhar</button>
+	</div>
+	<script>
+	( function () {
+		function copiar( txt, ok ) {
+			if ( navigator.clipboard && window.isSecureContext ) { navigator.clipboard.writeText( txt ).then( ok, function () {} ); return; }
+			var a = document.createElement( 'textarea' ); a.value = txt; a.style.position = 'fixed'; a.style.opacity = '0'; document.body.appendChild( a ); a.select();
+			try { document.execCommand( 'copy' ); ok(); } catch ( e ) {}
+			a.remove();
+		}
+		document.querySelectorAll( '.ce-sh-link' ).forEach( function ( b ) {
+			b.addEventListener( 'click', function () {
+				var s = b.querySelector( 'span' ), antes = s.textContent;
+				copiar( b.getAttribute( 'data-url' ), function () {
+					b.classList.add( 'ok' ); s.textContent = 'Link copiado!';
+					setTimeout( function () { b.classList.remove( 'ok' ); s.textContent = antes; }, 1800 );
+				} );
+			} );
+		} );
+		var barra = document.querySelector( '.ce-share-barra' ), bloco = document.getElementById( 'compartilhar' );
+		if ( ! barra ) { return; }
+		var btn = barra.querySelector( 'button' );
+		btn.addEventListener( 'click', function () {
+			if ( navigator.share ) {
+				navigator.share( { title: btn.getAttribute( 'data-title' ), url: btn.getAttribute( 'data-url' ) } ).catch( function () {} );
+			} else if ( bloco ) {
+				bloco.scrollIntoView( { behavior: 'smooth', block: 'center' } );
+			}
+		} );
+		var desceu = false, blocoVisivel = false;
+		function atualiza() { barra.classList.toggle( 'on', desceu && ! blocoVisivel ); }
+		window.addEventListener( 'scroll', function () { desceu = window.scrollY > 500; atualiza(); }, { passive: true } );
+		if ( bloco && 'IntersectionObserver' in window ) {
+			new IntersectionObserver( function ( e ) { blocoVisivel = e[0].isIntersecting; atualiza(); } ).observe( bloco );
+		}
+	} )();
+	</script>
+	<?php
+} );
