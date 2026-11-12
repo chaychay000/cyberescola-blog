@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Cyber Escola Painel
  * Description: Visual neon da Cyber Escola na tela de login, no painel e no editor do WordPress.
- * Version: 2.0.5
+ * Version: 2.0.7
  * Author: Cyber Escola
  * Requires at least: 6.4
  * Requires PHP: 7.4
@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'CE_PAINEL_VERSION', '2.0.5' );
+define( 'CE_PAINEL_VERSION', '2.0.7' );
 require_once __DIR__ . '/autora.php';
 require_once __DIR__ . '/fontes.php';
 require_once __DIR__ . '/seguranca.php';
@@ -436,18 +436,18 @@ function ce_painel_extra( $which ) {
 	/* Celular: abre a aba Configurações como no computador */
 	( function () {
 		if ( window.innerWidth >= 782 ) { return; }
-		var voltas = 0, aberto = 0;
+		var voltas = 0, mexeu = false;
+		document.addEventListener( 'click', function ( ev ) {
+			if ( ev.target.closest && ev.target.closest( '.interface-complementary-area-header, .interface-pinned-items, .editor-header__settings' ) ) { mexeu = true; }
+		}, true );
 		var iv = setInterval( function () {
 			var i = wp.data.select( 'core/interface' ), ed = wp.data.select( 'core/editor' );
 			if ( ! i || ! ed || ! ed.getCurrentPostId() ) { return; }
-			if ( ++voltas > 25 ) { clearInterval( iv ); return; }
-			if ( i.getActiveComplementaryArea( 'core' ) ) {
-				if ( ++aberto >= 4 ) { clearInterval( iv ); }
-			} else {
-				aberto = 0;
+			if ( mexeu || ++voltas > 40 ) { clearInterval( iv ); return; }
+			if ( ! i.getActiveComplementaryArea( 'core' ) ) {
 				wp.data.dispatch( 'core/interface' ).enableComplementaryArea( 'core', 'edit-post/document' );
 			}
-		}, 400 );
+		}, 300 );
 	} )();
 	if ( ! Panel ) { return; }
 	/* Uma aba só: as opções do bloco aparecem dentro da aba do artigo */
@@ -689,8 +689,8 @@ body.ce-sem-selecao .block-editor-block-list__block-popover:has(.block-editor-bl
 	.editor-header::after { content: ""; order: 2; flex: 0 0 100%; height: 0; }
 	.editor-header__settings > * { order: 3; }
 	.editor-header .editor-header__post-preview-button, .editor-header .editor-post-preview, .editor-header .editor-preview-dropdown { order: 4 !important; }
-	.editor-header .editor-post-save-draft, .editor-header .editor-post-saved-state { order: 5 !important; width: 40px !important; min-width: 40px !important; height: 40px !important; padding: 0 !important; display: inline-flex !important; align-items: center !important; justify-content: center !important; }
-	.editor-header .editor-post-save-draft svg, .editor-header .editor-post-saved-state svg { margin: 0 !important; }
+	.editor-header .editor-post-save-draft, .editor-header .editor-post-saved-state, .editor-header .editor-header__settings > .components-button.is-tertiary.has-icon { order: 5 !important; width: 40px !important; min-width: 40px !important; height: 40px !important; padding: 0 !important; display: inline-flex !important; align-items: center !important; justify-content: center !important; }
+	.editor-header .editor-post-save-draft svg, .editor-header .editor-post-saved-state svg, .editor-header .editor-header__settings > .components-button.is-tertiary.has-icon svg { margin: 0 !important; }
 	.editor-header .interface-pinned-items { order: 6 !important; }
 	.editor-header .editor-header__settings > .components-dropdown-menu { order: 7 !important; }
 	.interface-interface-skeleton__sidebar:empty { display: none !important; }
