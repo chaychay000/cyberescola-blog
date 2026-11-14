@@ -142,12 +142,12 @@ add_action( 'admin_bar_menu', function ( $bar ) {
 add_filter( 'feed_links_show_comments_feed', '__return_false' );
 
 /* Feed de comentários desligado (o blog não tem comentários) */
-foreach ( array( 'do_feed_rss2_comments', 'do_feed_atom_comments' ) as $ce_feed ) {
-	add_action( $ce_feed, function () {
+add_action( 'template_redirect', function () {
+	if ( is_comment_feed() ) {
 		wp_safe_redirect( home_url( '/' ), 301 );
 		exit;
-	}, 1 );
-}
+	}
+}, 1 );
 
 /* Limpeza única: post padrão, descrição da categoria e frase do blog */
 add_action( 'init', function () {
