@@ -232,7 +232,7 @@ function ce_footer() { ?>
 			) );
 			?>
 		</nav>
-		<span>© <?php echo esc_html( wp_date( 'Y' ) ); ?> <?php echo esc_html( ce_opt( 'ce_author_name', 'Ana Reis' ) ); ?> · Todos os direitos reservados</span>
+		<span>© <?php echo esc_html( wp_date( 'Y' ) ); ?> Cyber Escola · Todos os direitos reservados</span>
 	</div>
 </footer>
 <script>(function () {
