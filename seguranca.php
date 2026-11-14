@@ -75,6 +75,8 @@ function ce_cabecalhos_seguranca() {
 	header_remove( 'X-Powered-By' );
 	header( 'X-Content-Type-Options: nosniff' );
 	header( 'Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()' );
+	header( 'X-Frame-Options: SAMEORIGIN' );
+	header( 'Referrer-Policy: strict-origin-when-cross-origin' );
 	if ( is_ssl() ) {
 		header( 'Strict-Transport-Security: max-age=31536000' );
 	}
@@ -138,3 +140,38 @@ add_action( 'admin_bar_menu', function ( $bar ) {
 	$bar->remove_node( 'comments' );
 }, 999 );
 add_filter( 'feed_links_show_comments_feed', '__return_false' );
+
+/* Feed de comentários desligado (o blog não tem comentários) */
+foreach ( array( 'do_feed_rss2_comments', 'do_feed_atom_comments' ) as $ce_feed ) {
+	add_action( $ce_feed, function () {
+		wp_safe_redirect( home_url( '/' ), 301 );
+		exit;
+	}, 1 );
+}
+
+/* Limpeza única: post padrão, descrição da categoria e frase do blog */
+add_action( 'init', function () {
+	if ( get_option( 'ce_limpeza_v1' ) ) {
+		return;
+	}
+	$hello = get_page_by_path( 'hello-world', OBJECT, 'post' );
+	if ( $hello && 'publish' === $hello->post_status ) {
+		wp_update_post( array( 'ID' => $hello->ID, 'post_status' => 'draft' ) );
+	}
+	$cat = get_term_by( 'slug', 'blog', 'category' );
+	if ( $cat && false !== stripos( (string) $cat->description, 'Your blog category' ) ) {
+		wp_update_term( $cat->term_id, 'category', array( 'description' => 'Artigos, reflexões e dicas sobre Teatro e Educação para professores de Arte.' ) );
+	}
+	if ( '' === trim( (string) get_option( 'blogdescription' ) ) ) {
+		update_option( 'blogdescription', 'Teatro na escola, sem complicação' );
+	}
+	update_option( 'ce_limpeza_v1', 1, false );
+}, 30 );
+
+/* Descrição da página inicial para o Google */
+add_filter( 'rank_math/frontend/description', function ( $d ) {
+	if ( ( is_front_page() || is_home() ) && '' === trim( (string) $d ) ) {
+		return 'Ideias, jogos teatrais e dicas de planejamento para professores de Arte e Teatro. Blog da Cyber Escola.';
+	}
+	return $d;
+} );
